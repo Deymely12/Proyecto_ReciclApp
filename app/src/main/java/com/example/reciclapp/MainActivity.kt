@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.reciclapp.Presentation.MapScreen
-import com.example.reciclapp.ui.theme.ReciclAppTheme
+import com.example.reciclapp.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             navHostController = rememberNavController()
 
-            ReciclAppTheme {
+            AppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     //color = MaterialTheme.colors.background

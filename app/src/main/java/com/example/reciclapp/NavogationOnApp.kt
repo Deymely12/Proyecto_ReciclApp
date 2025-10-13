@@ -12,26 +12,30 @@ import androidx.navigation.compose.composable
 import com.example.reciclapp.Presentation.Header
 import com.example.reciclapp.Presentation.MapScreen
 import com.example.reciclapp.Presentation.Footer
+import com.example.reciclapp.Presentation.MapNavigator
+import com.example.reciclapp.Presentation.news
 
 @Composable
 fun MainLayout(navController: NavHostController) {
     Column(modifier = Modifier.fillMaxSize()) {
+        //cabecera
         Header(navController)
 
         Box(modifier = Modifier.weight(1f)) {
             NavHost(
                 navController = navController,
-                startDestination = "map"
+                startDestination = "home"
             ) {
                 composable("dashboard") { /* HomeScreen(navController) */ }
-                composable("map") { MapScreen() }
+                composable("map") { MapNavigator() }
                 composable("points") { /* LikesScreen(navController) */ }
                 composable("camera") { /* StatsScreen(navController) */ }
                 composable("profile") { /* ProfileScreen(navController) */ }
-                composable("home") { /* ProfileScreen(navController) */ }
+                composable("home") { news() }
             }
         }
 
+        //box
         Footer(navController)
     }
 }

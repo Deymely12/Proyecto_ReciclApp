@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 val MAPS_API_KEY: String = project.findProperty("MAPS_API_KEY") as? String ?: ""
@@ -32,6 +33,8 @@ android {
         }
     }
     compileOptions {
+        // La versión 11 está un poco desactualizada, 1.8 o 17 son más comunes.
+        // Pero lo dejamos como lo tienes para no introducir más cambios.
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -44,11 +47,7 @@ android {
 }
 
 dependencies {
-
-    //Maps
-    implementation("com.google.maps.android:maps-compose:1.0.0")
-    implementation("com.google.android.gms:play-services-maps:18.0.2")
-
+    // ---- DEPENDENCIAS PRINCIPALES ----
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -57,9 +56,24 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.material3)
+
+    // ---- MAPAS (Versiones actualizadas para compatibilidad) ----
+    implementation("com.google.maps.android:maps-compose:2.11.4") // Versión actualizada
+    implementation("com.google.android.gms:play-services-maps:18.2.0")  // Versión actualizada
+    implementation("com.google.android.gms:play-services-location:21.3.0") // Solo una declaración
+
+    // ---- FIREBASE (Usando la BoM correctamente) ----
+    // 1. Importa la Bill of Materials (BoM)
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+
+    // 2. Añade las dependencias que necesitas SIN especificar la versión.
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation(libs.material3) // Corregido el error de tipeo (era firxebase)
+
+
+    // ---- DEPENDENCIAS DE TEST ----
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
