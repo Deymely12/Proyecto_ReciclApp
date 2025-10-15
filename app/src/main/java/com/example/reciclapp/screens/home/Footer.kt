@@ -55,7 +55,7 @@ fun Footer(navController: NavHostController) {
         }
 
         IconButton(
-            onClick = { navController.navigate("camera") },
+            onClick = { navController.navigate("noticias") },
             modifier = Modifier
                 .size(100.dp)
                 .background(Color.White.copy(alpha = 0.3f), shape = CircleShape)

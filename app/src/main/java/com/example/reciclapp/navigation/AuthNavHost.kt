@@ -12,16 +12,20 @@ import com.example.reciclapp.screens.dashboard.DashboardScreen
 import com.example.reciclapp.screens.map.MapScreen
 import com.example.reciclapp.screens.points.PointsScreen
 import com.example.reciclapp.screens.camera.CameraScreen
+import com.example.reciclapp.screens.noticias.NoticiasScreen
 import com.example.reciclapp.screens.profile.ChangePasswordScreen
 import com.example.reciclapp.screens.profile.EditProfileScreen
 import com.example.reciclapp.screens.profile.ProfileScreen
 import com.example.reciclapp.viewmodel.AuthViewModel
+import com.example.reciclapp.viewmodel.NoticiasViewModel
 
 @Composable
 fun AuthNavHost(
     navController: NavHostController = rememberNavController(),
     authViewModel: AuthViewModel = viewModel()
 ) {
+    val noticiasViewModel: NoticiasViewModel = viewModel()
+
     NavHost(navController = navController, startDestination = "login") {
 
         // --- AUTH ---
@@ -72,6 +76,12 @@ fun AuthNavHost(
         composable("camera") {
             MainLayout(navController) {
                 CameraScreen(navController)
+            }
+        }
+
+        composable("noticias") {
+            MainLayout(navController) {
+                NoticiasScreen(noticiasViewModel,authViewModel)
             }
         }
 

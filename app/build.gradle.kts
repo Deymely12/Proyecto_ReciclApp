@@ -76,11 +76,17 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
 
     // Firebase (BoM)
-    implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
+
+    //Librerias de Diego
+    implementation("com.google.firebase:firebase-database-ktx")//Para el DatabaseRealtime
+    implementation("com.google.firebase:firebase-vertexai:16.0.0") //Para el Gemini
+    implementation("com.google.code.gson:gson:2.11.0")//para manejar JSON
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")//Para el Model
 
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:20.7.0")

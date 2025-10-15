@@ -184,4 +184,10 @@ class AuthViewModel : ViewModel() {
             }
             .addOnFailureListener { _authState.value = AuthState.Error(it.message ?: "Error reautenticando") }
     }
+
+    fun obtenerUsuarioActual(): FirebaseUser? {
+        val usuarioActual: FirebaseUser? = auth.currentUser
+        return usuarioActual
+    }
+
 }
