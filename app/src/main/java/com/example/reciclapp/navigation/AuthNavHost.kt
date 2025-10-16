@@ -6,10 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.reciclapp.Presentation.MapNavigator
 import com.example.reciclapp.screens.auth.LoginScreenAuth
 import com.example.reciclapp.screens.auth.RegisterScreenAuth
 import com.example.reciclapp.screens.dashboard.DashboardScreen
-import com.example.reciclapp.screens.map.MapScreen
 import com.example.reciclapp.screens.points.PointsScreen
 import com.example.reciclapp.screens.camera.CameraScreen
 import com.example.reciclapp.screens.noticias.NoticiasScreen
@@ -63,7 +63,7 @@ fun AuthNavHost(
 
         composable("map") {
             MainLayout(navController) {
-                MapScreen(navController)
+                MapNavigator()
             }
         }
 

@@ -5,6 +5,8 @@ plugins {
     id("com.google.gms.google-services") // Firebase
 }
 
+val MAPS_API_KEY: String = project.findProperty("MAPS_API_KEY") as? String ?: ""
+
 android {
     namespace = "com.example.reciclapp"
     compileSdk = 36
@@ -15,6 +17,8 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+
+        resValue ("string", "google_maps_key", MAPS_API_KEY)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -58,6 +62,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+
     // --- Compose (usando BOM para unificar versiones)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -94,6 +100,7 @@ dependencies {
     // Maps
     implementation("com.google.maps.android:maps-compose:4.3.0")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
     // Otras librerías
     implementation("io.coil-kt:coil-compose:2.7.0")
