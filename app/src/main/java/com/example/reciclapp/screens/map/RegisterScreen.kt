@@ -1,4 +1,4 @@
-package com.example.reciclapp.map
+package com.example.reciclapp.screens.map
 
 import android.Manifest
 import android.content.Context

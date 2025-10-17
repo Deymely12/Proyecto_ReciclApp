@@ -9,16 +9,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.reciclapp.navigation.AuthNavHost
-import com.example.reciclapp.ui.theme.ReciclAppTheme
+import com.example.reciclapp.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ReciclAppTheme {
+            AppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                 //   color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
                     AuthNavHost(navController = navController)

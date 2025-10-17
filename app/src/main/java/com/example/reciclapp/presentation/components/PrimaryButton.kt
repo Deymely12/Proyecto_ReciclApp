@@ -18,10 +18,10 @@ fun PrimaryButton(
     Button(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF4CAF50),
-            contentColor = Color.White
-        )
+      //  colors = ButtonDefaults.buttonColors(
+       //     containerColor = Color(0xFF4CAF50),
+      //      contentColor = Color.White
+       // )
     ) {
         Text(text = text, fontSize = 16.sp)
     }

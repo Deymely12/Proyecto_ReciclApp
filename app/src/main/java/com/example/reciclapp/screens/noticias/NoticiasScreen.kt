@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.reciclapp.model.Noticia
 import com.example.reciclapp.R
-import com.example.reciclapp.viewmodel.NoticiasViewModel
+import com.example.reciclapp.screens.noticias.NoticiasViewModel
 import androidx.navigation.NavHostController
 import com.example.reciclapp.screens.noticias.FirebaseFavoritosRepository
 import com.example.reciclapp.viewmodel.AuthState

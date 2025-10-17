@@ -25,8 +25,8 @@ fun UserAvatar(
             contentDescription = "Profile picture",
             modifier = modifier
                 .size(100.dp)
-                .clip(CircleShape)
-                .background(Color.LightGray),
+                .clip(CircleShape),
+     //           .background(Color.LightGray),
             contentScale = ContentScale.Crop
         )
     } else {

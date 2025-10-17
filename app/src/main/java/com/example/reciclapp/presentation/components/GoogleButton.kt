@@ -28,7 +28,7 @@ fun GoogleButton(
         modifier = modifier
             .fillMaxWidth()
             .height(50.dp)
-            .background(Color.White, shape = RoundedCornerShape(8.dp))
+        //    .background(Color.White, shape = RoundedCornerShape(8.dp))
             .clickable { onClick() }
             .padding(horizontal = 16.dp)
     ) {

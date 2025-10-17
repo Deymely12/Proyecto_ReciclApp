@@ -1,4 +1,4 @@
-package com.example.reciclapp.map
+package com.example.reciclapp.screens.map
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement

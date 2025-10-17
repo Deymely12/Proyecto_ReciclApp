@@ -172,17 +172,8 @@ private fun asignarImagenes(noticias: List<Noticia>): List<Noticia> {
     }
 }
 
-<<<<<<< Updated upstream
 */
-=======
 
- */
-
-
-
-
-
->>>>>>> Stashed changes
 suspend fun getNoticias(): List<Noticia> {
     val noticiasPrueba = listOf(
         Noticia(
@@ -248,11 +239,8 @@ suspend fun getNoticias(): List<Noticia> {
 
 }
 
-<<<<<<< Updated upstream
-=======
 
 
->>>>>>> Stashed changes
 }
 
 

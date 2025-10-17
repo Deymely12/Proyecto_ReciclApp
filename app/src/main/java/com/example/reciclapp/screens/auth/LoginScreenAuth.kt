@@ -86,7 +86,7 @@ fun LoginScreenAuth(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 🔹 Botón Google: simplemente ejecuta la acción pasada desde AuthNavHost
+        // Botón Google: simplemente ejecuta la acción pasada desde AuthNavHost
         Button(
             onClick = { onGoogleLoginClick() },
             modifier = Modifier.fillMaxWidth()

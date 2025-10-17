@@ -1,4 +1,4 @@
-package com.example.reciclapp.viewmodel
+package com.example.reciclapp.screens.noticias
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.reciclapp.model.Noticia
-import com.example.reciclapp.screens.noticias.GeminiRepository
 import kotlinx.coroutines.launch
 
 class NoticiasViewModel(
