@@ -10,12 +10,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.reciclapp.Presentation.MapNavigator
+import com.example.reciclapp.map.MapNavigator
 import com.example.reciclapp.screens.auth.LoginScreenAuth
 import com.example.reciclapp.screens.auth.RegisterScreenAuth
 import com.example.reciclapp.screens.dashboard.DashboardScreen
 import com.example.reciclapp.screens.points.PointsScreen
 import com.example.reciclapp.screens.camera.CameraScreen
+<<<<<<< Updated upstream
+=======
+import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
+//import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
+>>>>>>> Stashed changes
 import com.example.reciclapp.screens.noticias.NoticiasScreen
 import com.example.reciclapp.screens.profile.ChangePasswordScreen
 import com.example.reciclapp.screens.profile.EditProfileScreen

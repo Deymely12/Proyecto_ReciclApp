@@ -1,4 +1,4 @@
-package com.example.reciclapp.Presentation
+package com.example.reciclapp.map
 
 import android.Manifest
 import android.content.pm.PackageManager
