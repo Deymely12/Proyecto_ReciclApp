@@ -1,7 +1,7 @@
 package com.example.reciclapp.screens.auth
 
+import android.app.Activity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,11 +22,14 @@ import com.example.reciclapp.viewmodel.AuthViewModel
 
 @Composable
 fun RegisterScreenAuth(
+    authViewModel: AuthViewModel = viewModel(),
     onRegisterSuccess: () -> Unit,
     onLoginClick: () -> Unit,
-    onGoogleRegisterClick: (() -> Unit)? = null,
-    authViewModel: AuthViewModel = viewModel()
+    onGoogleRegisterClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val authState by authViewModel.authState.collectAsState()
+
     var firstname by remember { mutableStateOf("") }
     var lastname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -33,7 +37,6 @@ fun RegisterScreenAuth(
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var passwordMismatch by remember { mutableStateOf(false) }
-    val authState by authViewModel.authState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -104,10 +107,7 @@ fun RegisterScreenAuth(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (passwordMismatch) {
-            Text(
-                "Las contraseñas no coinciden",
-                color = Color.Red
-            )
+            Text("Las contraseñas no coinciden", color = Color.Red)
             Spacer(modifier = Modifier.height(8.dp))
         }
 
@@ -138,23 +138,22 @@ fun RegisterScreenAuth(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        onGoogleRegisterClick?.let { googleClick ->
-            Button(
-                onClick = { googleClick() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_google),
-                        contentDescription = "Google Logo",
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Registrarse con Google", color = Color.Black)
-                }
+        // 👇 Cambiado: ahora llama al callback que manejará el flujo en el NavHost
+        Button(
+            onClick = onGoogleRegisterClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_google),
+                    contentDescription = "Google Logo",
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Registrarse con Google", color = Color.Black)
             }
         }
     }

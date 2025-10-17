@@ -1,6 +1,10 @@
 package com.example.reciclapp.navigation
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -18,6 +22,7 @@ import com.example.reciclapp.screens.profile.EditProfileScreen
 import com.example.reciclapp.screens.profile.ProfileScreen
 import com.example.reciclapp.viewmodel.AuthViewModel
 import com.example.reciclapp.viewmodel.NoticiasViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 
 @Composable
 fun AuthNavHost(
@@ -25,10 +30,25 @@ fun AuthNavHost(
     authViewModel: AuthViewModel = viewModel()
 ) {
     val noticiasViewModel: NoticiasViewModel = viewModel()
+    val context = LocalContext.current
+    val activity = context as Activity
+
+    // Launcher para Google Sign-In (usaremos para login y registro)
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            // Aquí necesitamos saber si es login o registro
+            // Para simplificar, se guardará temporalmente un flag en el ViewModel
+            val isRegister = authViewModel.isRegisterFlow
+            authViewModel.handleGoogleSignInResult(task, isRegister)
+        }
+    }
 
     NavHost(navController = navController, startDestination = "login") {
 
-        // --- AUTH ---
+        // LOGIN
         composable("login") {
             LoginScreenAuth(
                 authViewModel = authViewModel,
@@ -37,10 +57,16 @@ fun AuthNavHost(
                         popUpTo("login") { inclusive = true }
                     }
                 },
-                onRegisterClick = { navController.navigate("register") }
+                onRegisterClick = { navController.navigate("register") },
+                onGoogleLoginClick = {
+                    // Indicamos que es login
+                    authViewModel.initGoogleSignIn(activity, isRegister = false)
+                    launcher.launch(authViewModel.getGoogleSignInIntent()!!)
+                }
             )
         }
 
+        // REGISTRO
         composable("register") {
             RegisterScreenAuth(
                 authViewModel = authViewModel,
@@ -50,42 +76,40 @@ fun AuthNavHost(
                     }
                 },
                 onLoginClick = { navController.navigate("login") },
-                onGoogleRegisterClick = { /* Implementa Google register si deseas */ }
+                onGoogleRegisterClick = {
+                    // Indicamos que es registro
+                    authViewModel.initGoogleSignIn(activity, isRegister = true)
+                    launcher.launch(authViewModel.getGoogleSignInIntent()!!)
+                }
             )
         }
 
-        // --- MAIN SCREENS con Header y Footer ---
+        // DASHBOARD
         composable("dashboard") {
-            MainLayout(navController) {
-                DashboardScreen(navController)
-            }
+            MainLayout(navController) { DashboardScreen(navController) }
         }
 
+        // MAPA
         composable("map") {
-            MainLayout(navController) {
-                MapNavigator()
-            }
+            MainLayout(navController) { MapNavigator() }
         }
 
+        // PUNTOS
         composable("points") {
-            MainLayout(navController) {
-                PointsScreen(navController)
-            }
+            MainLayout(navController) { PointsScreen(navController) }
         }
 
+        // CÁMARA
         composable("camera") {
-            MainLayout(navController) {
-                CameraScreen(navController)
-            }
+            MainLayout(navController) { CameraScreen(navController) }
         }
 
+        // NOTICIAS
         composable("noticias") {
-            MainLayout(navController) {
-                NoticiasScreen(noticiasViewModel,authViewModel)
-            }
+            MainLayout(navController) { NoticiasScreen(noticiasViewModel, authViewModel) }
         }
 
-        // --- PROFILE ---
+        // PERFIL
         composable("profile") {
             MainLayout(navController) {
                 ProfileScreen(
@@ -102,25 +126,16 @@ fun AuthNavHost(
             }
         }
 
-        // --- EDIT PROFILE ---
         composable("editProfile") {
             MainLayout(navController) {
-                EditProfileScreen(
-                    authViewModel = authViewModel,
-                    onBack = { navController.popBackStack() }
-                )
+                EditProfileScreen(authViewModel = authViewModel, onBack = { navController.popBackStack() })
             }
         }
 
-        // --- CHANGE PASSWORD ---
         composable("changePassword") {
             MainLayout(navController) {
-                ChangePasswordScreen(
-                    authViewModel = authViewModel,
-                    onBack = { navController.popBackStack() }
-                )
+                ChangePasswordScreen(authViewModel = authViewModel, onBack = { navController.popBackStack() })
             }
         }
     }
 }
-

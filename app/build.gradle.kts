@@ -23,8 +23,19 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
+    signingConfigs {
+        create("debugNew") {
+            storeFile = file("C:/Users/Usuario/.android/debug-new.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkeynew"
+            keyPassword = "android"
+        }
+    }
 
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("debugNew")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(

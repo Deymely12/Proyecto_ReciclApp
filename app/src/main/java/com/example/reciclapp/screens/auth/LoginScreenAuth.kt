@@ -15,41 +15,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.reciclapp.R
 import com.example.reciclapp.presentation.components.CustomTextField
 import com.example.reciclapp.presentation.components.PasswordTextField
 import com.example.reciclapp.viewmodel.AuthState
 import com.example.reciclapp.viewmodel.AuthViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.common.api.ApiException
 
 @Composable
 fun LoginScreenAuth(
-    authViewModel: AuthViewModel,
+    authViewModel: AuthViewModel = viewModel(),
     onLoginSuccess: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onGoogleLoginClick: () -> Unit
 ) {
     val context = LocalContext.current
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
     val authState by authViewModel.authState.collectAsState()
 
-    // Inicializa Google Sign-In automáticamente
-    LaunchedEffect(Unit) {
-        authViewModel.initGoogleSignIn(context as Activity)
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            authViewModel.handleGoogleSignInResult(task)
-        }
-    }
-
+    // ======================
+    // INTERFAZ DE LOGIN
+    // ======================
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -90,12 +80,15 @@ fun LoginScreenAuth(
         Button(
             onClick = { authViewModel.login(email, password) },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("Iniciar sesión") }
+        ) {
+            Text("Iniciar sesión")
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // 🔹 Botón Google: simplemente ejecuta la acción pasada desde AuthNavHost
         Button(
-            onClick = { launcher.launch(authViewModel.getGoogleSignInIntent()) },
+            onClick = { onGoogleLoginClick() },
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -126,6 +119,7 @@ fun LoginScreenAuth(
         }
     }
 
+    // Detecta si el login fue exitoso
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) onLoginSuccess()
     }

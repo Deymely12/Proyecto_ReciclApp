@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "768431524783-9h2h0f4vgtbk3sugdseu622js4dsqamo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.reciclapp",
+            "certificate_hash": "3f37e3a9f4f7953dd652c8bfa20a728b31b8adca"
+          }
+        },
+        {
           "client_id": "768431524783-bvesd915lqsknpn4sn0e4ug1rq1q1ibm.apps.googleusercontent.com",
           "client_type": 3
         }
