@@ -1,9 +1,12 @@
 package com.example.reciclapp.navigation
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.privacysandbox.ads.adservices.topics.Topic
 import com.example.reciclapp.screens.home.Footer
 import com.example.reciclapp.screens.home.Header
 
@@ -12,17 +15,15 @@ fun MainLayout(
     navController: NavHostController,
     content: @Composable () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Header
-        Header(navController)
+    Scaffold (
+        topBar = { Header(navController) },
+        bottomBar = {Footer(navController)}
 
-        // Body dinámico
-        Box(modifier = Modifier.weight(1f)) {
+    ){innerPadding ->
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             content()
         }
 
-        // Footer
-        Footer(navController)
     }
 }
 

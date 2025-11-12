@@ -16,11 +16,8 @@ import com.example.reciclapp.screens.auth.RegisterScreenAuth
 import com.example.reciclapp.screens.dashboard.DashboardScreen
 import com.example.reciclapp.screens.points.PointsScreen
 import com.example.reciclapp.screens.camera.CameraScreen
-<<<<<<< Updated upstream
-=======
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
-//import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
->>>>>>> Stashed changes
+import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasScreen
 import com.example.reciclapp.screens.profile.ChangePasswordScreen
 import com.example.reciclapp.screens.profile.EditProfileScreen
