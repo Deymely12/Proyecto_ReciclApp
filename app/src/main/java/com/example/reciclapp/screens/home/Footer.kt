@@ -31,7 +31,7 @@ fun Footer(navController: NavHostController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = { navController.navigate("dashboard") },
+                onClick = { navController.navigate("dashboardMenu") },
                 modifier = Modifier.size(60.dp)
             ) {
                 Image(

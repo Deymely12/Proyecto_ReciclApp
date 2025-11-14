@@ -17,12 +17,15 @@ import com.example.pruebaclasificador.WasteViewModel
 import com.example.reciclapp.navigation.MapNavigator
 import com.example.reciclapp.screens.auth.LoginScreenAuth
 import com.example.reciclapp.screens.auth.RegisterScreenAuth
-import com.example.reciclapp.screens.dashboard.DashboardScreen
 import com.example.reciclapp.screens.points.PointsScreen
 import com.example.reciclapp.screens.camera.CameraScreen
 import com.example.reciclapp.screens.camera.CongratsCard
 import com.example.reciclapp.screens.camera.ResultScreen
 import com.example.reciclapp.screens.camera.ScanResultScreen
+import com.example.reciclapp.screens.dashboard.ui.screens.DashboardImpactoScreen
+import com.example.reciclapp.screens.dashboard.ui.screens.DashboardMenuScreen
+import com.example.reciclapp.screens.dashboard.ui.screens.DashboardPuntosScreen
+import com.example.reciclapp.screens.dashboard.ui.screens.DashboardResiduosScreen
 import com.example.reciclapp.viewmodel.MapViewModel
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
@@ -33,6 +36,7 @@ import com.example.reciclapp.screens.profile.ProfileScreen
 import com.example.reciclapp.viewmodel.AuthViewModel
 import com.example.reciclapp.viewmodel.NoticiasViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AuthNavHost(
@@ -67,7 +71,7 @@ fun AuthNavHost(
             LoginScreenAuth(
                 authViewModel = authViewModel,
                 onLoginSuccess = {
-                    navController.navigate("dashboard") {
+                    navController.navigate("dashboardMenu") {
                         popUpTo("login") { inclusive = true }
                     }
                 },
@@ -85,7 +89,7 @@ fun AuthNavHost(
             RegisterScreenAuth(
                 authViewModel = authViewModel,
                 onRegisterSuccess = {
-                    navController.navigate("dashboard") {
+                    navController.navigate("dashboardMenu") {
                         popUpTo("register") { inclusive = true }
                     }
                 },
@@ -98,9 +102,36 @@ fun AuthNavHost(
             )
         }
 
-        // DASHBOARD
-        composable("dashboard") {
-            MainLayout(navController) { DashboardScreen(navController) }
+        // Menu
+        composable("dashboardMenu") {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            MainLayout(navController) {
+                DashboardMenuScreen(navController, uid)
+            }
+        }
+
+// Residuos
+        composable("residuos") {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            MainLayout(navController) {
+                DashboardResiduosScreen(uid, navController)
+            }
+        }
+
+// Puntos
+        composable("puntos") {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            MainLayout(navController) {
+                DashboardPuntosScreen(uid, navController)
+            }
+        }
+
+// Impacto
+        composable("impacto") {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            MainLayout(navController) {
+                DashboardImpactoScreen(uid, navController)
+            }
         }
 
         // MAPA
