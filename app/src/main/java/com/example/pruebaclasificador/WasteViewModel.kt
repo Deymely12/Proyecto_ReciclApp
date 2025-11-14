@@ -1,11 +1,10 @@
 package com.example.pruebaclasificador
 
 import android.graphics.Bitmap
-import android.util.Base64
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pruebaclasificador.data.ImageRequest
 import com.example.pruebaclasificador.data.Prediction
 import com.example.pruebaclasificador.data.RoboflowResponse
 import com.example.pruebaclasificador.network.RetrofitClient
@@ -14,65 +13,73 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import com.example.pruebaclasificador.data.ClassMapping
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 class WasteViewModel : ViewModel() {
 
-    var classification: String? = null
-    var predictions: List<Prediction>? = null
 
-    fun classifyImage(bitmap: Bitmap, onResult: (List<Prediction>?) -> Unit) {
+    var classification by mutableStateOf<String?>(null)
+        private set
+
+    var topPrediction by mutableStateOf<Prediction?>(null)
+        private set
+
+    var categoria by mutableStateOf<String?>(null)
+    private set
+
+    fun classifyImage(bitmap: Bitmap, onResult: (Prediction?) -> Unit) {
         viewModelScope.launch {
             try {
-                // Redimensionar imagen
-                val resizedBitmap = resizeBitmap(bitmap, 640)
-                Log.d("WasteViewModel", "Imagen redimensionada a: ${resizedBitmap.width}x${resizedBitmap.height}")
 
-                // Convertir bitmap a archivo temporal
-                val file = bitmapToFile(resizedBitmap)
-                Log.d("WasteViewModel", "Archivo creado, tamaño: ${file.length()} bytes")
+                val bitMapRedimensionado = resizeBitmap(bitmap, 640)
+                //Log.d("WasteViewModel", "Imagen redimensionada a: ${bitMapRedimensionado.width}x${bitMapRedimensionado.height}")
 
-                // Crear RequestBody y MultipartBody.Part
-                val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
-                // Llamar al API con Multipart
-                val response = RetrofitClient.api.classifyImageMultipart(
+                val archivo = bitmapToFile(bitMapRedimensionado)
+                //Log.d("WasteViewModel", "Archivo creado, tamaño: ${archivo.length()} bytes")
+
+                val archivoRequest = archivo.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                val cuerpoArchivo = MultipartBody.Part.createFormData("file", archivo.name, archivoRequest)
+
+                val respuesta = RetrofitClient.api.classifyImageMultipart(
                     RetrofitClient.MODEL_ID,
                     RetrofitClient.API_KEY,
-                    body
+                    cuerpoArchivo
                 )
 
-                // Eliminar archivo temporal
-                file.delete()
+                archivo.delete()
 
-                if (response.isSuccessful) {
-                    val responseBody = response.body()?.string()
+                if (respuesta.isSuccessful) {
+                    val responseBody = respuesta.body()?.string()
                     Log.d("WasteViewModel", "Respuesta: $responseBody")
 
                     val gson = Gson()
-                    val roboflowResponse = gson.fromJson(responseBody, RoboflowResponse::class.java)
+                    val respuestaRoboflow = gson.fromJson(responseBody, RoboflowResponse::class.java)
 
-                    predictions = roboflowResponse.predictions
-                    classification = if (roboflowResponse.predictions.isNotEmpty()) {
-                        val topPrediction = roboflowResponse.predictions.maxByOrNull { it.confidence }
-                        val originalClass = topPrediction?.`class` ?: "Desconocido"
-                        val mappedCategory = ClassMapping.mapping[originalClass] ?: "Otros residuos"
-                        //"Clase: ${topPrediction?.`class`}\nConfianza: ${(topPrediction?.confidence?.times(100))?.toInt()}%"
-                        "Categoría: $mappedCategory\n(Detectado: $originalClass)\nConfianza: ${(topPrediction?.confidence?.times(100))?.toInt()}%"
+                    topPrediction = respuestaRoboflow.predictions.maxByOrNull { it.confidence }
 
+                    if(topPrediction!=null){
+                        val mappedCategory = ClassMapping.mapping[topPrediction?.`class`] ?: "Otros residuos"
+                        classification =
+
+                         "Categoría: $mappedCategory\n" +
+                                "(Clase Original: ${topPrediction?.`class`})\n" +
+                                "Confianza: ${(topPrediction?.confidence?.times(100))?.toInt()}%"
+
+                        categoria=mappedCategory
 
                     } else {
-                        "No se detectaron objetos"
+                       classification= "No se detectaron objetos"
                     }
 
-                    onResult(roboflowResponse.predictions)
+                    onResult(topPrediction)
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    Log.e("WasteViewModel", "Error HTTP ${response.code()}: $errorBody")
+                    val errorBody = respuesta.errorBody()?.string()
+                    Log.e("WasteViewModel", "Error HTTP ${respuesta.code()}: $errorBody")
                     onResult(null)
                 }
 
@@ -85,31 +92,31 @@ class WasteViewModel : ViewModel() {
     }
 
     private fun resizeBitmap(bitmap: Bitmap, maxSize: Int): Bitmap {
-        val width = bitmap.width
-        val height = bitmap.height
+        val ancho = bitmap.width
+        val alto = bitmap.height
 
-        if (width <= maxSize && height <= maxSize) {
+        if (ancho <= maxSize && alto <= maxSize) {
             return bitmap
         }
 
-        val ratio = if (width > height) {
-            maxSize.toFloat() / width
+        val ratio = if (ancho > alto) {
+            maxSize.toFloat() / ancho
         } else {
-            maxSize.toFloat() / height
+            maxSize.toFloat() / alto
         }
 
-        val newWidth = (width * ratio).toInt()
-        val newHeight = (height * ratio).toInt()
+        val nuevoAncho = (ancho * ratio).toInt()
+        val nuevoAlto = (alto * ratio).toInt()
 
-        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+        return Bitmap.createScaledBitmap(bitmap, nuevoAncho, nuevoAlto, true)
     }
 
     private fun bitmapToFile(bitmap: Bitmap): File {
-        val file = File.createTempFile("upload_image_", ".jpg")
-        val outputStream = FileOutputStream(file)
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
-        outputStream.flush()
-        outputStream.close()
-        return file
+        val archivo = File.createTempFile("upload_image_", ".jpg")
+        val flujoSalida = FileOutputStream(archivo)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, flujoSalida)
+        flujoSalida.flush()
+        flujoSalida.close()
+        return archivo
     }
 }
