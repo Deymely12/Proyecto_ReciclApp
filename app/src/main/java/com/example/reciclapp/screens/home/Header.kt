@@ -39,7 +39,7 @@ fun Header(navController: NavHostController) {
         },
         actions = {
             IconButton(
-                onClick = { navController.navigate("profile") },
+                onClick = { navController.navigate("noticias") },
                 modifier = Modifier
                     .size(40.dp)
                     .background(Color.Transparent, shape = CircleShape)

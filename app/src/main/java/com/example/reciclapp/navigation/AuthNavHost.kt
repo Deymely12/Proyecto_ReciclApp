@@ -7,9 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.reciclapp.navigation.MapNavigator
 import com.example.reciclapp.screens.auth.LoginScreenAuth
 import com.example.reciclapp.screens.auth.RegisterScreenAuth
@@ -18,6 +20,7 @@ import com.example.reciclapp.screens.points.PointsScreen
 import com.example.reciclapp.screens.camera.CameraScreen
 import com.example.reciclapp.screens.camera.CongratsCard
 import com.example.reciclapp.screens.camera.ResultScreen
+import com.example.reciclapp.screens.camera.ScanResultScreen
 import com.example.reciclapp.viewmodel.MapViewModel
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
@@ -105,12 +108,49 @@ fun AuthNavHost(
 
         // PUNTOS
         composable("points") {
-            MainLayout(navController) { ResultScreen(navController, mapViewModel) }
+            MainLayout(navController) {
+                ResultScreen(
+                    navController = navController,
+                    mapViewModel = mapViewModel,
+                    // temporal, a reemplazar por el detectado
+                    //wasteTypeName = "Orgánico"
+                    //wasteTypeName = "Vidrio"
+                    wasteTypeName = "Plásticos y envases metálicos"
+                    //wasteTypeName = "Papel y cartón"
+                    //wasteTypeName = "Otros residuos"
+                )
+            }
         }
 
         // CÁMARA
         composable("camera") {
-            MainLayout(navController) { ResultScreen(navController, mapViewModel) }
+            MainLayout(navController) {
+                CameraScreen(navController)
+            }
+        }
+
+        // Resultados de Scaneo pt.1
+        composable("analysis") {
+            MainLayout(navController) {
+                ScanResultScreen(navController)
+            }
+        }
+
+        // Resultados de Scaneo pt.2
+        composable(
+            route = "result/{wasteTypeName}",
+            arguments = listOf(navArgument("wasteTypeName") { type = NavType.StringType })
+        ) { backStackEntry ->
+
+            val wasteTypeName = backStackEntry.arguments?.getString("wasteTypeName") ?: "Desconocido"
+
+            MainLayout(navController) {
+                ResultScreen(
+                    navController = navController,
+                    mapViewModel = mapViewModel,
+                    wasteTypeName = wasteTypeName
+                )
+            }
         }
 
         // NOTICIAS
@@ -135,11 +175,6 @@ fun AuthNavHost(
             }
         }
 
-        composable("ResultScreen") {
-            MainLayout(navController) {
-                CongratsCard(navController)
-            }
-        }
 
         composable("editProfile") {
             MainLayout(navController) {

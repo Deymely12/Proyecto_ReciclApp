@@ -24,20 +24,23 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 
 @Composable
-fun CongratsCard(navController: NavHostController) {
+fun CongratsCard(
+    navController: NavHostController,
+    points: Int,
+    itemCount: Int,
+    itemLabel: String
+) {
 
     LaunchedEffect(Unit) {
         delay(3000) // 3 segundos
         navController.navigate("noticias") {
-            // opcional: sacamos ResultScreen del back stack
             popUpTo("ResultScreen") { inclusive = true }
             launchSingleTop = true
         }
     }
 
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -81,9 +84,8 @@ fun CongratsCard(navController: NavHostController) {
                 // Texto de puntos y mensaje
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Has ganado 25 puntos por\n" +
-                                "reciclar 1 botella(s)\n" +
-                                "plástica(s).",
+                        text = "Has ganado $points puntos por\n" +
+                                "reciclar $itemCount $itemLabel.",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium
@@ -104,3 +106,4 @@ fun CongratsCard(navController: NavHostController) {
         }
     }
 }
+

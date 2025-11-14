@@ -1,13 +1,14 @@
 package com.example.reciclapp.screens.camera
 
 import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.content.Context
+import android.location.Location
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -16,37 +17,72 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.example.reciclapp.model.Marker
+import com.example.reciclapp.model.getBinDrawableForDocId
+import com.example.reciclapp.screens.camera.CongratsCard
+import com.example.reciclapp.viewmodel.MapViewModel
+import com.example.reciclapp.viewmodel.ResultViewModel
+//import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import com.example.reciclapp.viewmodel.MapViewModel
-import com.example.reciclapp.model.Marker
+
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 @Composable
 fun ResultScreen(
-    navController: NavController,
-    viewModel: MapViewModel
+    navController: NavHostController,
+    mapViewModel: MapViewModel,
+    wasteTypeName: String,
+    resultViewModel: ResultViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.uiState.collectAsState()
 
-    // MANEJO DE PERMISOS
+    // Estado del mapa (ubicación y marcadores)
+    val mapUiState by mapViewModel.uiState.collectAsState()
+
+    // Estado del resultado (tacho, puntos, métricas)
+    val resultUiState by resultViewModel.uiState.collectAsState()
+
+    // Cargar datos del doc de Firestore según el tipo de residuo
+    LaunchedEffect(wasteTypeName) {
+        resultViewModel.loadForWasteType(wasteTypeName)
+    }
+
+    // Si el reciclaje ya se registró, mostramos solo el CongratsCard
+    if (resultUiState.recyclingCompleted && resultUiState.recycleBin != null) {
+        val bin = resultUiState.recycleBin
+        CongratsCard(
+            navController = navController,
+            points = bin?.points_per_item ?: 0,
+            itemCount = 1,
+            itemLabel = bin?.name?.lowercase() ?: ""   // "plástico", "vidrio", etc.
+        )
+        return
+    }
+
+    // ---------------- MANEJO DE PERMISOS DE UBICACIÓN ----------------
     var hasLocationPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         )
     }
 
@@ -55,8 +91,7 @@ fun ResultScreen(
     ) { isGranted ->
         hasLocationPermission = isGranted
         if (isGranted) {
-            // Si recién dieron permiso, pedimos ubicación desde el ViewModel
-            viewModel.onLocationPermissionGranted()
+            mapViewModel.onLocationPermissionGranted()
         }
     }
 
@@ -64,40 +99,85 @@ fun ResultScreen(
         if (!hasLocationPermission) {
             permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         } else {
-            viewModel.onLocationPermissionGranted()
+            mapViewModel.onLocationPermissionGranted()
         }
     }
-    // ------------------------------------------------------------
+    // -----------------------------------------------------------------
 
-    // Datos "fake" de análisis (puedes luego pasarlos desde otro ViewModel u otra capa)
-    val analysisResult = "Botella de plástico"
-    val binType = "Tacho Blanco"
-    @DrawableRes val binImageRes = 0
-    @DrawableRes val analyzedImageRes = 0
+    val recycleBin = resultUiState.recycleBin
+
+    // Imagen y textos del tacho
+    @DrawableRes
+    val binImageRes = recycleBin?.let { getBinDrawableForDocId(it.id) } ?: 0
+    val binColorName = recycleBin?.bin_color_name ?: "Tacho"
+    val binTypeText = recycleBin?.name ?: wasteTypeName
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        StorageSection(
-            imageRes = binImageRes,
-            binName = binType
-        )
+
+        // Parte superior: información del tacho
+        when {
+            resultUiState.isLoading && recycleBin == null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            resultUiState.errorMessage != null && recycleBin == null -> {
+                Text(
+                    text = "Error: ${resultUiState.errorMessage}",
+                    modifier = Modifier.padding(16.dp),
+                    color = Color.Red
+                )
+            }
+
+            else -> {
+                StorageSection(
+                    imageRes = binImageRes,
+                    binName = "$binTypeText → Tacho $binColorName"
+                )
+            }
+        }
 
         AppDivider()
 
+        // Sección del mapa
         MapSection(
-            userLocation = uiState.userLocation,
-            nearestMarker = uiState.nearestMarker,
-            distance = uiState.distanceToNearest,
-            topNearest = uiState.topNearest
+            userLocation = mapUiState.userLocation,
+            nearestMarker = mapUiState.nearestMarker,
+            distance = mapUiState.distanceToNearest,
+            topNearest = mapUiState.topNearest
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Mensaje de error si falla el registro de puntos
+        resultUiState.errorMessage?.let { err ->
+            if (recycleBin != null) {
+                Text(
+                    text = err,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
+                    color = Color.Red,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+
+        // Botón "Ya Reciclé"
         Button(
-            onClick = { navController.navigate("ResultScreen") },
+            onClick = { resultViewModel.confirmRecycling() },
+            enabled = !resultUiState.isLoading && recycleBin != null,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp),
@@ -109,7 +189,6 @@ fun ResultScreen(
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
-
 
 @Composable
 fun StorageSection(@DrawableRes imageRes: Int, binName: String) {
@@ -149,7 +228,9 @@ fun StorageSection(@DrawableRes imageRes: Int, binName: String) {
 
         Text(
             text = binName,
-            fontSize = 18.sp
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -161,7 +242,7 @@ private fun MapSection(
     distance: Float?,
     topNearest: List<Pair<Marker, Float>>
 ) {
-    val defaultLocation = LatLng(-12.046374, -77.042793)
+    val defaultLocation = LatLng(-12.046374, -77.042793) // Lima centro
 
     val targetLatLng = when {
         nearestMarker != null -> LatLng(nearestMarker.latitude, nearestMarker.longitude)
@@ -180,7 +261,7 @@ private fun MapSection(
         )
     }
 
-    // calculamos los puntos de la ruta
+    // Ruta simple (línea recta) entre usuario y centro más cercano
     val routePoints = remember(userLocation, nearestMarker) {
         buildRouteToNearest(userLocation, nearestMarker)
     }
@@ -213,8 +294,9 @@ private fun MapSection(
                     rotationGesturesEnabled = false
                 )
             ) {
+                // Marcadores de los top N centros
                 topNearest.forEach { (marker, _) ->
-                    Marker(
+                    com.google.maps.android.compose.Marker(
                         state = MarkerState(
                             position = LatLng(marker.latitude, marker.longitude)
                         ),
@@ -222,8 +304,9 @@ private fun MapSection(
                     )
                 }
 
+                // Centro más cercano resaltado
                 nearestMarker?.let { m ->
-                    Marker(
+                    com.google.maps.android.compose.Marker(
                         state = MarkerState(
                             position = LatLng(m.latitude, m.longitude)
                         ),
@@ -231,20 +314,20 @@ private fun MapSection(
                     )
                 }
 
+                // Ubicación del usuario
                 userLocation?.let {
-                    Marker(
+                    com.google.maps.android.compose.Marker(
                         state = MarkerState(position = it),
                         title = "Tu Ubicación",
                         icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
                     )
                 }
 
-                // trazamos la ruta solo si hay al menos 2 puntos
+                // Ruta
                 if (routePoints.size >= 2) {
                     Polyline(
                         points = routePoints,
                         clickable = false
-                        // si quieres puedes configurar más propiedades según la versión de la lib
                     )
                 }
             }
