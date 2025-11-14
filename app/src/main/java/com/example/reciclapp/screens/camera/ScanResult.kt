@@ -11,9 +11,9 @@ fun ScanResultScreen(
     navController: NavController
 ) {
     //val wasteTypeName = "Orgánico"
-    val wasteTypeName = "Vidrio"
+    //val wasteTypeName = "Vidrio"
     //val wasteTypeName = "Plásticos y envases metálicos"
-    //val wasteTypeName = "Papel y cartón"
+    val wasteTypeName = "Papel y cartón"
     //val wasteTypeName = "Otros residuos"
     Button(onClick = {
         navController.navigate("result/$wasteTypeName")

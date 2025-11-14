@@ -176,7 +176,7 @@ fun ResultScreen(
 
         // Botón "Ya Reciclé"
         Button(
-            onClick = { resultViewModel.confirmRecycling() },
+            onClick = { resultViewModel.confirmRecycling(imageUrl = null) },
             enabled = !resultUiState.isLoading && recycleBin != null,
             modifier = Modifier
                 .fillMaxWidth()

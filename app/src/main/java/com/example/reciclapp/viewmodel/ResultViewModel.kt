@@ -3,14 +3,22 @@ package com.example.reciclapp.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.reciclapp.data.recycle.RecycleRepository
+import com.example.reciclapp.model.RecycleBin
 import com.example.reciclapp.model.WasteType
-import com.example.reciclapp.screens.camera.ResultUiState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+data class ResultUiState(
+    val wasteType: WasteType? = null,
+    val recycleBin: RecycleBin? = null,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val recyclingCompleted: Boolean = false
+)
 
 class ResultViewModel(
     private val repository: RecycleRepository =
@@ -20,9 +28,8 @@ class ResultViewModel(
     private val _uiState = MutableStateFlow(ResultUiState())
     val uiState: StateFlow<ResultUiState> = _uiState
 
-    /** Cargar info del tacho según el tipo de residuo */
     fun loadForWasteType(wasteTypeName: String) {
-        if (_uiState.value.wasteType != null) return  // ya cargado
+        if (_uiState.value.wasteType != null) return
 
         val wasteType = WasteType.fromDisplayName(wasteTypeName)
         if (wasteType == null) {
@@ -60,15 +67,28 @@ class ResultViewModel(
         }
     }
 
-    /** Llamar cuando el usuario toca "Ya Reciclé" */
-    fun confirmRecycling() {
-        val bin = _uiState.value.recycleBin ?: return
+    /**
+     * Registrar reciclaje:
+     * - Actualiza totales del usuario.
+     * - Crea documento en users/{uid}/residuos.
+     *
+     * @param imageUrl URL de la imagen capturada (si la tienes; puede ser null por ahora).
+     */
+    fun confirmRecycling(imageUrl: String? = null) {
+        val currentState = _uiState.value
+        val bin = currentState.recycleBin ?: return
+        val wasteType = currentState.wasteType ?: return
 
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch {
             try {
-                repository.addPointsAndMetricsForCurrentUser(bin)
+                repository.registerRecycleForCurrentUser(
+                    recycleBin = bin,
+                    wasteTypeDocId = wasteType.binDocId,
+                    imageUrl = imageUrl
+                )
+
                 _uiState.update {
                     it.copy(
                         isLoading = false,
