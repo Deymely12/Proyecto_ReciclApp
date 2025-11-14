@@ -34,7 +34,7 @@ android {
 
     buildTypes {
         debug {
-            signingConfig = signingConfigs.getByName("debugNew")
+            //signingConfig = signingConfigs.getByName("debugNew")
         }
         release {
             isMinifyEnabled = false
@@ -72,6 +72,11 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.androidx.material3)
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.foundation.layout)
+    implementation(libs.androidx.ui)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
@@ -104,6 +109,11 @@ dependencies {
     implementation("com.google.firebase:firebase-vertexai:16.0.0") //Para el Gemini
     implementation("com.google.code.gson:gson:2.11.0")//para manejar JSON
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")//Para el Model
+    //Para lo del clasificador
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:20.7.0")
@@ -123,4 +133,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

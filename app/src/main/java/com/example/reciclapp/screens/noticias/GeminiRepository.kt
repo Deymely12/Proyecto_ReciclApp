@@ -11,9 +11,9 @@ import com.example.reciclapp.R
 
 class GeminiRepository {
 
-/*
-private val model = Firebase.vertexAI.generativeModel("gemini-2.0-flash")
 
+private val model = Firebase.vertexAI.generativeModel("gemini-2.0-flash")
+/*
 suspend fun getNoticias(): List<Noticia> {
 
     val prompt = """
@@ -172,7 +172,11 @@ private fun asignarImagenes(noticias: List<Noticia>): List<Noticia> {
     }
 }
 
+<<<<<<< HEAD
 */
+
+
+
 
 suspend fun getNoticias(): List<Noticia> {
     val noticiasPrueba = listOf(

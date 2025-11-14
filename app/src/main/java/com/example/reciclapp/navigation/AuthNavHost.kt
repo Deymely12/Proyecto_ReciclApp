@@ -7,17 +7,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.reciclapp.screens.map.MapNavigator
+import androidx.navigation.navArgument
+import com.example.pruebaclasificador.WasteScreen
+import com.example.pruebaclasificador.WasteViewModel
+import com.example.reciclapp.navigation.MapNavigator
 import com.example.reciclapp.screens.auth.LoginScreenAuth
 import com.example.reciclapp.screens.auth.RegisterScreenAuth
-import com.example.reciclapp.screens.dashboard.DashboardScreen
 import com.example.reciclapp.screens.points.PointsScreen
 import com.example.reciclapp.screens.camera.CameraScreen
+import com.example.reciclapp.screens.camera.CongratsCard
+import com.example.reciclapp.screens.camera.ResultScreen
+import com.example.reciclapp.screens.camera.ScanResultScreen
+import com.example.reciclapp.screens.dashboard.ui.screens.DashboardImpactoScreen
+import com.example.reciclapp.screens.dashboard.ui.screens.DashboardMenuScreen
+import com.example.reciclapp.screens.dashboard.ui.screens.DashboardPuntosScreen
+import com.example.reciclapp.screens.dashboard.ui.screens.DashboardResiduosScreen
+import com.example.reciclapp.viewmodel.MapViewModel
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
-//import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
+import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasScreen
 import com.example.reciclapp.screens.noticias.NoticiasViewModel
 import com.example.reciclapp.screens.profile.ChangePasswordScreen
@@ -26,6 +37,7 @@ import com.example.reciclapp.screens.profile.ProfileScreen
 import com.example.reciclapp.viewmodel.AuthViewModel
 //import com.example.reciclapp.viewmodel.NoticiasViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AuthNavHost(
@@ -35,6 +47,10 @@ fun AuthNavHost(
     val noticiasViewModel: NoticiasViewModel = viewModel()
     val context = LocalContext.current
     val activity = context as Activity
+    val mapViewModel: MapViewModel = viewModel(
+        factory = MapViewModel.provideFactory(context)
+    )
+
 
     // Launcher para Google Sign-In (usaremos para login y registro)
     val launcher = rememberLauncherForActivityResult(
@@ -56,7 +72,7 @@ fun AuthNavHost(
             LoginScreenAuth(
                 authViewModel = authViewModel,
                 onLoginSuccess = {
-                    navController.navigate("dashboard") {
+                    navController.navigate("dashboardMenu") {
                         popUpTo("login") { inclusive = true }
                     }
                 },
@@ -74,7 +90,7 @@ fun AuthNavHost(
             RegisterScreenAuth(
                 authViewModel = authViewModel,
                 onRegisterSuccess = {
-                    navController.navigate("dashboard") {
+                    navController.navigate("dashboardMenu") {
                         popUpTo("register") { inclusive = true }
                     }
                 },
@@ -87,9 +103,36 @@ fun AuthNavHost(
             )
         }
 
-        // DASHBOARD
-        composable("dashboard") {
-            MainLayout(navController) { DashboardScreen(navController) }
+        // Menu
+        composable("dashboardMenu") {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            MainLayout(navController) {
+                DashboardMenuScreen(navController, uid)
+            }
+        }
+
+// Residuos
+        composable("residuos") {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            MainLayout(navController) {
+                DashboardResiduosScreen(uid, navController)
+            }
+        }
+
+// Puntos
+        composable("puntos") {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            MainLayout(navController) {
+                DashboardPuntosScreen(uid, navController)
+            }
+        }
+
+// Impacto
+        composable("impacto") {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            MainLayout(navController) {
+                DashboardImpactoScreen(uid, navController)
+            }
         }
 
         // MAPA
@@ -99,12 +142,49 @@ fun AuthNavHost(
 
         // PUNTOS
         composable("points") {
-            MainLayout(navController) { PointsScreen(navController) }
+            MainLayout(navController) {
+                ResultScreen(
+                    navController = navController,
+                    mapViewModel = mapViewModel,
+                    // temporal, a reemplazar por el detectado
+                    //wasteTypeName = "Orgánico"
+                    //wasteTypeName = "Vidrio"
+                    wasteTypeName = "Plásticos y envases metálicos"
+                    //wasteTypeName = "Papel y cartón"
+                    //wasteTypeName = "Otros residuos"
+                )
+            }
         }
 
         // CÁMARA
         composable("camera") {
-            MainLayout(navController) { CameraScreen(navController) }
+            MainLayout(navController) {
+                WasteScreen(navController)
+            }
+        }
+
+        // Resultados de Scaneo pt.1
+        composable("analysis") {
+            MainLayout(navController) {
+                ScanResultScreen(navController)
+            }
+        }
+
+        // Resultados de Scaneo pt.2
+        composable(
+            route = "result/{wasteTypeName}",
+            arguments = listOf(navArgument("wasteTypeName") { type = NavType.StringType })
+        ) { backStackEntry ->
+
+            val wasteTypeName = backStackEntry.arguments?.getString("wasteTypeName") ?: "Desconocido"
+
+            MainLayout(navController) {
+                ResultScreen(
+                    navController = navController,
+                    mapViewModel = mapViewModel,
+                    wasteTypeName = wasteTypeName
+                )
+            }
         }
 
         // NOTICIAS
@@ -132,6 +212,7 @@ fun AuthNavHost(
                 )
             }
         }
+
 
         composable("editProfile") {
             MainLayout(navController) {

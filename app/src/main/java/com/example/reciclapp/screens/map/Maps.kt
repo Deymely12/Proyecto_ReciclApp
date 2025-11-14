@@ -1,59 +1,35 @@
 package com.example.reciclapp.screens.map
 
 import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.GeoPoint
 import com.google.maps.android.compose.*
-import com.example.reciclapp.model.Coordinate
-
-
-@Composable
-fun MapNavigator() {
-    val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "maps") {
-        composable("maps") {
-            MapScreen(navController = navController)
-        }
-        composable("register") {
-            RegisterScreen(navController = navController)
-        }
-        composable("request") {
-            RequestListScreen(navController = navController)
-        }
-    }
-}
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.unit.dp
+import com.example.reciclapp.viewmodel.MapViewModel
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 @Composable
-fun MapScreen(navController: NavController) {
+fun MapScreen(
+    navController: NavController,
+    viewModel: MapViewModel
+) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
 
-
-    // Cliente para obtener la ubicación del dispositivo
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-
-    // Estados para almacenar la información
-    var userLocation by remember { mutableStateOf<LatLng?>(null) }
-    var markersFromFirebase by remember { mutableStateOf<List<Coordinate>>(emptyList()) }
     var hasLocationPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -63,73 +39,41 @@ fun MapScreen(navController: NavController) {
         )
     }
 
-    // Launcher para solicitar permisos de ubicación
     val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            hasLocationPermission = isGranted
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasLocationPermission = isGranted
+        if (isGranted) {
+            viewModel.onLocationPermissionGranted()
         }
-    )
+    }
 
-    // Efecto para solicitar permiso al iniciar el composable si no se tiene
+    // Pedimos permiso una sola vez al entrar
     LaunchedEffect(Unit) {
         if (!hasLocationPermission) {
             permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            viewModel.onLocationPermissionGranted()
         }
     }
 
-    LaunchedEffect(hasLocationPermission) {
-        if (hasLocationPermission) {
-            try {
-                fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                    location?.let { userLocation = LatLng(it.latitude, it.longitude) }
-                }
-            } catch (e: SecurityException) {
-                println("Security exception: ${e.message}")
-            }
-        }
-    }
-
-    //nos suscribimos a los cambios de la colección en Firebase
-    DisposableEffect(Unit) {
-        val db = FirebaseFirestore.getInstance()
-        val listenerRegistration = db.collection("marker")
-            .whereEqualTo("state", true) // Solo muestra marcadores habilitados
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    println("Error listening for updates: $error")
-                    return@addSnapshotListener
-                }
-                if (snapshot != null) {
-                    markersFromFirebase = snapshot.documents.mapNotNull { document ->
-                        val data = document.data
-                        val name = data?.get("name") as? String
-                        val coordinates = data?.get("coordinates") as? GeoPoint
-                        val description = data?.get("description") as? String
-                        val state = data?.get("state") as? Boolean
-                        if (name != null && coordinates != null) {
-                            Coordinate(name, coordinates, description, state)
-                        } else {
-                            null
-                        }
-                    }
-                }
-            }
-        onDispose { listenerRegistration.remove() }
-    }
-
-    // Estado para la cámara del mapa. La centramos en la ubicación del usuario o en una por defecto.
+    val defaultLocation = LatLng(-12.046374, -77.042793) // Lima
+    val startCameraPosition = CameraPosition.fromLatLngZoom(
+        uiState.userLocation ?: defaultLocation,
+        14f
+    )
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(
-            userLocation ?: LatLng(-12.046374, -77.042793), // Ubicación por defecto (Lima) si no hay permiso
-            14f
-        )
+        position = startCameraPosition
     }
 
-    // Cuando se obtiene la ubicación del usuario, movemos la cámara
-    LaunchedEffect(userLocation) {
-        userLocation?.let {
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(it, 15f)
+    // Movemos cámara cuando cambia la ubicación del usuario
+    LaunchedEffect(uiState.userLocation) {
+        uiState.userLocation?.let { latLng ->
+            cameraPositionState.animate(
+                CameraUpdateFactory.newCameraPosition(
+                    CameraPosition.fromLatLngZoom(latLng, 15f)
+                )
+            )
         }
     }
 
@@ -137,15 +81,18 @@ fun MapScreen(navController: NavController) {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Contenedor del mapa que ocupa la mayor parte del espacio
-        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
                 uiSettings = MapUiSettings(zoomControlsEnabled = true)
             ) {
-                // Este marcador solo aparecerá si se concedió el permiso y se obtuvo la ubicación
-                userLocation?.let {
+                // Ubicación del usuario
+                uiState.userLocation?.let {
                     Marker(
                         state = MarkerState(position = it),
                         title = "Mi Ubicación",
@@ -153,18 +100,19 @@ fun MapScreen(navController: NavController) {
                     )
                 }
 
-                // Estos marcadores aparecerán siempre
-                markersFromFirebase.forEach { markerData ->
+                // Marcadores desde Firebase
+                uiState.markers.forEach { marker ->
                     Marker(
-                        state = MarkerState(position = LatLng(markerData.coordinates.latitude, markerData.coordinates.longitude)),
-                        title = markerData.name,
-                        snippet = markerData.description
+                        state = MarkerState(
+                            position = LatLng(marker.latitude, marker.longitude)
+                        ),
+                        title = marker.name,
+                        snippet = marker.description
                     )
                 }
             }
         }
 
-        // Fila con los botones de acción
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -181,4 +129,3 @@ fun MapScreen(navController: NavController) {
         }
     }
 }
-

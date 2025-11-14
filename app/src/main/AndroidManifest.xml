@@ -9,6 +9,11 @@
     <!-- Permiso necesario para Google Sign-In -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Permiso necesario para cámara-->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -17,7 +22,20 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ReciclApp">
+        android:theme="@style/Theme.ReciclApp"
+        android:requestLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true">
+
+        <!-- FileProvider: necesario para crear URI seguras al tomar fotos -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/files_paths" />
+        </provider>
 
         <!-- Configuración de Google Sign-In -->
         <meta-data
@@ -46,7 +64,7 @@
         <!-- para conectarse a la API de MAPS -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key"/>
+            android:value="AIzaSyBaurc2pINZY69xe2zugdDsC5o95cNzsb0"/>
 
     </application>
 

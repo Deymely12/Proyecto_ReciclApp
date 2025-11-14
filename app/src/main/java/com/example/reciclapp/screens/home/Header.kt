@@ -4,12 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButtonDefaults.elevation
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,33 +19,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import com.example.reciclapp.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Header(navController: NavHostController,modifier: Modifier = Modifier,) {
-    Card(
-        modifier = modifier,
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ){
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                //     .background(Color(0xFF4CAF50))
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.reciclapplogo),
-                contentDescription = "Logo",
-                modifier = Modifier.size(40.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "ReciclApp",
-                style = MaterialTheme.typography.titleLarge,
-                //      color = Color.White
-            )
-            Spacer(modifier = Modifier.weight(1f))
+fun Header(navController: NavHostController) {
+    TopAppBar(
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.reciclapplogo),
+                    contentDescription = "Logo",
+                    modifier = Modifier.size(40.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "ReciclApp",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+        },
+        actions = {
             IconButton(
-                onClick = { navController.navigate("profile") }, // lleva al home/perfil
+                onClick = { navController.navigate("noticias") },
                 modifier = Modifier
                     .size(40.dp)
                     .background(Color.Transparent, shape = CircleShape)
@@ -56,7 +50,13 @@ fun Header(navController: NavHostController,modifier: Modifier = Modifier,) {
                     modifier = Modifier.fillMaxSize()
                 )
             }
-        }
-    }
+
+        },
+        modifier = Modifier.fillMaxWidth(),
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primary,
+        ),
+    )
 }
 

@@ -4,10 +4,17 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
+<<<<<<< HEAD
         <DropdownSelection timestamp="2025-10-17T14:59:56.805902100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=Y5EAAIEA5XSSSGDQ" />
+=======
+        <DropdownSelection timestamp="2025-11-14T17:49:19.779919600Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Farlo\.android\avd\Medium_Phone.avd" />
+>>>>>>> Reciclapp-farid
             </handle>
           </Target>
         </DropdownSelection>
