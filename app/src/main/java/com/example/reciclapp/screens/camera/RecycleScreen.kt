@@ -1,11 +1,7 @@
 package com.example.reciclapp.screens.camera
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.location.Location
-import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
@@ -14,9 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,169 +19,70 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.example.reciclapp.R
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.GeoPoint
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
-import kotlinx.coroutines.tasks.await
-
-// Modelo local robusto para esta pantalla (evita ClassCastException si tu data class difiere)
-private data class MarkerItem(
-    val name: String,
-    val coordinates: GeoPoint,
-    val description: String? = null,
-    val state: Boolean? = null
-)
-
-private data class ResultUiState(
-    val userLocation: LatLng? = null,
-    val nearestMarker: MarkerItem? = null,
-    val distanceToMarker: Float? = null,
-    val topNearest: List<Pair<MarkerItem, Float>> = emptyList(),
-    val analysisResult: String = "Botella de plástico", // Simulado
-    val binType: String = "Tacho Blanco", // Simulado
-    @DrawableRes val binImageRes: Int = 0, // Placeholder
-    @DrawableRes val analyzedImageRes: Int = 0 // Placeholder
-)
+import com.google.maps.android.compose.*
+import com.example.reciclapp.viewmodel.MapViewModel
+import com.example.reciclapp.model.Marker
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 @Composable
 fun ResultScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: MapViewModel
 ) {
     val context = LocalContext.current
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    val uiState by viewModel.uiState.collectAsState()
 
-    var uiState by remember { mutableStateOf(ResultUiState()) }
-    var markersFromFirebase by remember { mutableStateOf(emptyList<MarkerItem>()) }
-
-    //Permisos de ubicación
+    // MANEJO DE PERMISOS
     var hasLocationPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_GRANTED
         )
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { result ->
-        hasLocationPermission =
-            (result[Manifest.permission.ACCESS_FINE_LOCATION] == true) ||
-                    (result[Manifest.permission.ACCESS_COARSE_LOCATION] == true)
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasLocationPermission = isGranted
+        if (isGranted) {
+            // Si recién dieron permiso, pedimos ubicación desde el ViewModel
+            viewModel.onLocationPermissionGranted()
+        }
     }
 
     LaunchedEffect(Unit) {
         if (!hasLocationPermission) {
-            val perms = buildList {
-                add(Manifest.permission.ACCESS_FINE_LOCATION)
-                add(Manifest.permission.ACCESS_COARSE_LOCATION)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    // Si quisieras Precise Alarms/Background; no es necesario aquí.
-                }
-            }.toTypedArray()
-            permissionLauncher.launch(perms)
+            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            viewModel.onLocationPermissionGranted()
         }
     }
+    // ------------------------------------------------------------
 
-    //Suscripción en tiempo real a Firestore (solo state == true)
-    DisposableEffect(Unit) {
-        val db = FirebaseFirestore.getInstance()
-        val registration = db.collection("marker")
-            .whereEqualTo("state", true)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    // Log, sin crashear
-                    println("Firestore listen error: $error")
-                    return@addSnapshotListener
-                }
-                runCatching {
-                    if (snapshot != null) {
-                        // Parse robusto sin depender de tu data class global
-                        val list = snapshot.documents.mapNotNull { doc ->
-                            val data = doc.data ?: return@mapNotNull null
-                            val name = data["name"] as? String ?: return@mapNotNull null
-                            val gp = data["coordinates"] as? GeoPoint ?: return@mapNotNull null
-                            val desc = data["description"] as? String
-                            val state = data["state"] as? Boolean
-                            MarkerItem(name = name, coordinates = gp, description = desc, state = state)
-                        }
-                        markersFromFirebase = list
-                    }
-                }.onFailure { e ->
-                    println("Mapping error: $e")
-                }
-            }
-        onDispose { registration.remove() }
-    }
+    // Datos "fake" de análisis (puedes luego pasarlos desde otro ViewModel u otra capa)
+    val analysisResult = "Botella de plástico"
+    val binType = "Tacho Blanco"
+    @DrawableRes val binImageRes = 0
+    @DrawableRes val analyzedImageRes = 0
 
-    //Obtener ubicación del usuario una vez (cuando ya hay permiso)
-    @SuppressLint("MissingPermission")
-    LaunchedEffect(hasLocationPermission) {
-        if (!hasLocationPermission) return@LaunchedEffect
-        runCatching {
-            val location = fusedLocationClient.lastLocation.await()
-            val userLatLng = location?.let { LatLng(it.latitude, it.longitude) }
-            uiState = uiState.copy(userLocation = userLatLng)
-        }.onFailure { e ->
-            Toast.makeText(context, "Error de ubicación", Toast.LENGTH_SHORT).show()
-
-            println("Location error: $e")
-        }
-    }
-
-    // Recalcular nearest y top-5 cuando cambien ubicación o marcadores
-    LaunchedEffect(uiState.userLocation, markersFromFirebase) {
-        val user = uiState.userLocation
-        if (user != null && markersFromFirebase.isNotEmpty()) {
-            val top = topNNearest(user, markersFromFirebase, 5)
-            val first = top.first()
-            uiState = uiState.copy(
-                nearestMarker = first.first,
-                distanceToMarker = first.second,
-                topNearest = top
-            )
-        }
-    }
-
-    // UI
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        /*
-        AnalysisSection(
-            imageRes = uiState.analyzedImageRes,
-            resultText = uiState.analysisResult
-        )
-
-        AppDivider()
-         */
-
         StorageSection(
-            imageRes = uiState.binImageRes,
-            binName = uiState.binType
+            imageRes = binImageRes,
+            binName = binType
         )
 
         AppDivider()
@@ -194,7 +90,7 @@ fun ResultScreen(
         MapSection(
             userLocation = uiState.userLocation,
             nearestMarker = uiState.nearestMarker,
-            distance = uiState.distanceToMarker,
+            distance = uiState.distanceToNearest,
             topNearest = uiState.topNearest
         )
 
@@ -213,51 +109,8 @@ fun ResultScreen(
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
-/*
-@Composable
-fun AnalysisSection(@DrawableRes imageRes: Int, resultText: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (imageRes != 0) {
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = "Residuo analizado",
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            // placeholder sin color fijo
-            Box(
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Sin imagen", fontSize = 12.sp)
-            }
-        }
 
-        Column(modifier = Modifier.padding(start = 16.dp)) {
-            Text(
-                text = "Se ha analizado la foto",
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
-            Text(
-                text = "El residuo es una $resultText",
-                fontSize = 16.sp,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
-    }
-}
-*/
+
 @Composable
 fun StorageSection(@DrawableRes imageRes: Int, binName: String) {
     Column(
@@ -282,7 +135,6 @@ fun StorageSection(@DrawableRes imageRes: Int, binName: String) {
                 contentScale = ContentScale.Fit
             )
         } else {
-            // placeholder sin color fijo
             Box(
                 modifier = Modifier
                     .size(150.dp)
@@ -297,7 +149,6 @@ fun StorageSection(@DrawableRes imageRes: Int, binName: String) {
 
         Text(
             text = binName,
-            fontWeight = FontWeight.Bold,
             fontSize = 18.sp
         )
     }
@@ -306,14 +157,14 @@ fun StorageSection(@DrawableRes imageRes: Int, binName: String) {
 @Composable
 private fun MapSection(
     userLocation: LatLng?,
-    nearestMarker: MarkerItem?,
+    nearestMarker: Marker?,
     distance: Float?,
-    topNearest: List<Pair<MarkerItem, Float>> = emptyList()
+    topNearest: List<Pair<Marker, Float>>
 ) {
     val defaultLocation = LatLng(-12.046374, -77.042793)
 
-    val targetLatLng: LatLng = when {
-        nearestMarker != null -> nearestMarker.coordinates.toLatLng()
+    val targetLatLng = when {
+        nearestMarker != null -> LatLng(nearestMarker.latitude, nearestMarker.longitude)
         else -> defaultLocation
     }
 
@@ -321,13 +172,17 @@ private fun MapSection(
         position = CameraPosition.fromLatLngZoom(targetLatLng, 15f)
     }
 
-    // Mueve/Anima la cámara cuando cambia el destino
     LaunchedEffect(targetLatLng) {
         cameraPositionState.animate(
-            update = CameraUpdateFactory.newCameraPosition(
+            CameraUpdateFactory.newCameraPosition(
                 CameraPosition.fromLatLngZoom(targetLatLng, 15f)
             )
         )
+    }
+
+    // calculamos los puntos de la ruta
+    val routePoints = remember(userLocation, nearestMarker) {
+        buildRouteToNearest(userLocation, nearestMarker)
     }
 
     Column(
@@ -358,26 +213,38 @@ private fun MapSection(
                     rotationGesturesEnabled = false
                 )
             ) {
-                // Dibujar top N marcadores (candidatos más cercanos)
-                topNearest.forEach { (coord, _) ->
+                topNearest.forEach { (marker, _) ->
                     Marker(
-                        state = MarkerState(position = coord.coordinates.toLatLng()),
-                        title = coord.name
+                        state = MarkerState(
+                            position = LatLng(marker.latitude, marker.longitude)
+                        ),
+                        title = marker.name
                     )
                 }
-                // Marcador del centro más cercano (dibujado al final para destacar por orden)
+
                 nearestMarker?.let { m ->
                     Marker(
-                        state = MarkerState(position = m.coordinates.toLatLng()),
+                        state = MarkerState(
+                            position = LatLng(m.latitude, m.longitude)
+                        ),
                         title = m.name
                     )
                 }
-                // Ubicación del usuario
+
                 userLocation?.let {
                     Marker(
                         state = MarkerState(position = it),
                         title = "Tu Ubicación",
                         icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+                    )
+                }
+
+                // trazamos la ruta solo si hay al menos 2 puntos
+                if (routePoints.size >= 2) {
+                    Polyline(
+                        points = routePoints,
+                        clickable = false
+                        // si quieres puedes configurar más propiedades según la versión de la lib
                     )
                 }
             }
@@ -388,7 +255,8 @@ private fun MapSection(
         Text(
             text = nearestMarker?.let {
                 val d = distance?.toInt()
-                if (d != null) "Estás a $d metros del Centro ${it.name}" else "Centro más cercano: ${it.name}"
+                if (d != null) "Estás a $d metros del Centro ${it.name}"
+                else "Centro más cercano: ${it.name}"
             } ?: if (userLocation == null) {
                 "Activa tu GPS o permite la ubicación para buscar centros cercanos"
             } else {
@@ -401,11 +269,23 @@ private fun MapSection(
 
         if (topNearest.isNotEmpty()) {
             Spacer(Modifier.height(8.dp))
-            topNearest.take(5).forEachIndexed { index, (coord, dist) ->
-                Text("${index + 1}. ${coord.name} — ${dist.toInt()} m", fontSize = 14.sp)
+            topNearest.take(5).forEachIndexed { index, (marker, dist) ->
+                Text("${index + 1}. ${marker.name} — ${dist.toInt()} m", fontSize = 14.sp)
             }
         }
     }
+}
+
+private fun buildRouteToNearest(
+    userLocation: LatLng?,
+    nearestMarker: Marker?
+): List<LatLng> {
+    if (userLocation == null || nearestMarker == null) return emptyList()
+
+    val destLatLng = LatLng(nearestMarker.latitude, nearestMarker.longitude)
+
+    // Aquí es solo una línea recta: [origen, destino]
+    return listOf(userLocation, destLatLng)
 }
 
 @Composable
@@ -414,29 +294,4 @@ fun AppDivider() {
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
         thickness = 1.dp
     )
-}
-
-//Utilidades
-
-private fun GeoPoint.toLatLng(): LatLng = LatLng(this.latitude, this.longitude)
-
-private fun topNNearest(
-    userLatLng: LatLng,
-    markers: List<MarkerItem>,
-    n: Int
-): List<Pair<MarkerItem, Float>> {
-    val userLoc = Location("User").apply {
-        latitude = userLatLng.latitude
-        longitude = userLatLng.longitude
-    }
-    return markers
-        .map { m ->
-            val markerLoc = Location("Marker").apply {
-                latitude = m.coordinates.latitude
-                longitude = m.coordinates.longitude
-            }
-            m to userLoc.distanceTo(markerLoc) // metros
-        }
-        .sortedBy { it.second }
-        .take(n)
 }

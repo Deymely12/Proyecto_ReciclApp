@@ -1,4 +1,4 @@
-package com.example.reciclapp.data
+package com.example.reciclapp.model
 
 data class tachos(
     val name: String,

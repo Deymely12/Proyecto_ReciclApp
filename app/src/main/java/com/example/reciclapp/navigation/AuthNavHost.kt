@@ -10,7 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.reciclapp.map.MapNavigator
+import com.example.reciclapp.navigation.MapNavigator
 import com.example.reciclapp.screens.auth.LoginScreenAuth
 import com.example.reciclapp.screens.auth.RegisterScreenAuth
 import com.example.reciclapp.screens.dashboard.DashboardScreen
@@ -18,6 +18,7 @@ import com.example.reciclapp.screens.points.PointsScreen
 import com.example.reciclapp.screens.camera.CameraScreen
 import com.example.reciclapp.screens.camera.CongratsCard
 import com.example.reciclapp.screens.camera.ResultScreen
+import com.example.reciclapp.viewmodel.MapViewModel
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasScreen
@@ -36,6 +37,10 @@ fun AuthNavHost(
     val noticiasViewModel: NoticiasViewModel = viewModel()
     val context = LocalContext.current
     val activity = context as Activity
+    val mapViewModel: MapViewModel = viewModel(
+        factory = MapViewModel.provideFactory(context)
+    )
+
 
     // Launcher para Google Sign-In (usaremos para login y registro)
     val launcher = rememberLauncherForActivityResult(
@@ -100,12 +105,12 @@ fun AuthNavHost(
 
         // PUNTOS
         composable("points") {
-            MainLayout(navController) { ResultScreen(navController) }
+            MainLayout(navController) { ResultScreen(navController, mapViewModel) }
         }
 
         // CÁMARA
         composable("camera") {
-            MainLayout(navController) { ResultScreen(navController) }
+            MainLayout(navController) { ResultScreen(navController, mapViewModel) }
         }
 
         // NOTICIAS
