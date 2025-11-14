@@ -13,7 +13,7 @@ class GeminiRepository {
 
 
 private val model = Firebase.vertexAI.generativeModel("gemini-2.0-flash")
-
+/*
 suspend fun getNoticias(): List<Noticia> {
 
     val prompt = """
@@ -172,7 +172,7 @@ private fun asignarImagenes(noticias: List<Noticia>): List<Noticia> {
     }
 }
 
-    /*
+   */
 suspend fun getNoticias(): List<Noticia> {
     val noticiasPrueba = listOf(
         Noticia(
@@ -237,7 +237,7 @@ suspend fun getNoticias(): List<Noticia> {
     return noticiasPrueba
 
 }
-*/
+
 
 }
 

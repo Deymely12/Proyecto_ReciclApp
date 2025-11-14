@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.ReciclAppTheme
 import com.example.reciclapp.navigation.AuthNavHost
+import com.example.reciclapp.navigation.MainLayout
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,6 +21,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    //Auth Firebase
                     val navController = rememberNavController()
                     AuthNavHost(navController = navController)
                 }

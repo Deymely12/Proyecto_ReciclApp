@@ -16,6 +16,8 @@ import com.example.reciclapp.screens.auth.RegisterScreenAuth
 import com.example.reciclapp.screens.dashboard.DashboardScreen
 import com.example.reciclapp.screens.points.PointsScreen
 import com.example.reciclapp.screens.camera.CameraScreen
+import com.example.reciclapp.screens.camera.CongratsCard
+import com.example.reciclapp.screens.camera.ResultScreen
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasScreen
@@ -98,12 +100,12 @@ fun AuthNavHost(
 
         // PUNTOS
         composable("points") {
-            MainLayout(navController) { PointsScreen(navController) }
+            MainLayout(navController) { ResultScreen(navController) }
         }
 
         // CÁMARA
         composable("camera") {
-            MainLayout(navController) { CameraScreen(navController) }
+            MainLayout(navController) { ResultScreen(navController) }
         }
 
         // NOTICIAS
@@ -125,6 +127,12 @@ fun AuthNavHost(
                         }
                     }
                 )
+            }
+        }
+
+        composable("ResultScreen") {
+            MainLayout(navController) {
+                CongratsCard(navController)
             }
         }
 

@@ -101,7 +101,6 @@ fun RegisterScreen(navController: NavController) {
                 onClick = {
                     if (name.isNotBlank() && description.isNotBlank() && coordinates != null) {
                         isSubmitting = true
-                        // --- LÓGICA ACTUALIZADA ---
                         // Se crea el objeto con todos los campos requeridos por el modelo
                         val newMarker = hashMapOf(
                             "name" to name,
