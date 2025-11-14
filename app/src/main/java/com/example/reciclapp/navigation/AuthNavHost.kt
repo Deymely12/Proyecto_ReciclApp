@@ -17,7 +17,7 @@ import com.example.pruebaclasificador.WasteViewModel
 import com.example.reciclapp.navigation.MapNavigator
 import com.example.reciclapp.screens.auth.LoginScreenAuth
 import com.example.reciclapp.screens.auth.RegisterScreenAuth
-import com.example.reciclapp.screens.points.PointsScreen
+import com.example.reciclapp.screens.points.PointsPromotionsScreen
 import com.example.reciclapp.screens.camera.CameraScreen
 import com.example.reciclapp.screens.camera.CongratsCard
 import com.example.reciclapp.screens.camera.ResultScreen
@@ -143,16 +143,7 @@ fun AuthNavHost(
         // PUNTOS
         composable("points") {
             MainLayout(navController) {
-                ResultScreen(
-                    navController = navController,
-                    mapViewModel = mapViewModel,
-                    // temporal, a reemplazar por el detectado
-                    //wasteTypeName = "Orgánico"
-                    //wasteTypeName = "Vidrio"
-                    wasteTypeName = "Plásticos y envases metálicos"
-                    //wasteTypeName = "Papel y cartón"
-                    //wasteTypeName = "Otros residuos"
-                )
+                PointsPromotionsScreen(navController)
             }
         }
 
