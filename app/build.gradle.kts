@@ -109,6 +109,11 @@ dependencies {
     implementation("com.google.firebase:firebase-vertexai:16.0.0") //Para el Gemini
     implementation("com.google.code.gson:gson:2.11.0")//para manejar JSON
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")//Para el Model
+    //Para lo del clasificador
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:20.7.0")

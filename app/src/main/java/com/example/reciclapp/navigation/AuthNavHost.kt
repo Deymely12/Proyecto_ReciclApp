@@ -12,6 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.pruebaclasificador.WasteScreen
+import com.example.pruebaclasificador.WasteViewModel
 import com.example.reciclapp.navigation.MapNavigator
 import com.example.reciclapp.screens.auth.LoginScreenAuth
 import com.example.reciclapp.screens.auth.RegisterScreenAuth
@@ -125,7 +127,7 @@ fun AuthNavHost(
         // CÁMARA
         composable("camera") {
             MainLayout(navController) {
-                CameraScreen(navController)
+                WasteScreen(navController)
             }
         }
 
