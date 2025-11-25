@@ -67,13 +67,6 @@ class ResultViewModel(
         }
     }
 
-    /**
-     * Registrar reciclaje:
-     * - Actualiza totales del usuario.
-     * - Crea documento en users/{uid}/residuos.
-     *
-     * @param imageUrl URL de la imagen capturada (si la tienes; puede ser null por ahora).
-     */
     fun confirmRecycling(imageUrl: String? = null) {
         val currentState = _uiState.value
         val bin = currentState.recycleBin ?: return
