@@ -64,7 +64,7 @@
         <!-- para conectarse a la API de MAPS -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBaurc2pINZY69xe2zugdDsC5o95cNzsb0"/>
+            android:value="AIzaSyCEanmaXgHlmg2bQShtdpV8GfpfaMHmkQA"/>
 
     </application>
 
