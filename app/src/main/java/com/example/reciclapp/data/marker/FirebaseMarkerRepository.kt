@@ -6,6 +6,7 @@ import com.example.reciclapp.model.Marker
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 class FirebaseMarkerRepository(
     private val firestore: FirebaseFirestore
@@ -16,7 +17,6 @@ class FirebaseMarkerRepository(
             .whereEqualTo("state", true)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    // Podrías loguear el error
                     return@addSnapshotListener
                 }
 
@@ -41,5 +41,18 @@ class FirebaseMarkerRepository(
             }
 
         awaitClose { registration.remove() }
+    }
+
+    override suspend fun registerMarker(marker: Marker) {
+        val data = hashMapOf(
+            "name" to marker.name,
+            "description" to marker.description,
+            "coordinates" to GeoPoint(marker.latitude, marker.longitude),
+            "state" to marker.isEnabled
+        )
+
+        firestore.collection("marker")
+            .add(data)
+            .await()
     }
 }

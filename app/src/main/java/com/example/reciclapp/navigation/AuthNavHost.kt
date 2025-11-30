@@ -13,21 +13,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.pruebaclasificador.WasteScreen
-import com.example.pruebaclasificador.WasteViewModel
-import com.example.reciclapp.navigation.MapNavigator
 import com.example.reciclapp.screens.auth.LoginScreenAuth
 import com.example.reciclapp.screens.auth.RegisterScreenAuth
 import com.example.reciclapp.screens.points.PointsPromotionsScreen
-import com.example.reciclapp.screens.camera.CameraScreen
-import com.example.reciclapp.screens.camera.CongratsCard
 import com.example.reciclapp.screens.camera.ResultScreen
-import com.example.reciclapp.screens.camera.ScanResultScreen
 import com.example.reciclapp.screens.dashboard.ui.screens.DashboardImpactoScreen
 import com.example.reciclapp.screens.dashboard.ui.screens.DashboardMenuScreen
 import com.example.reciclapp.screens.dashboard.ui.screens.DashboardPuntosScreen
 import com.example.reciclapp.screens.dashboard.ui.screens.DashboardResiduosScreen
 import com.example.reciclapp.viewmodel.MapViewModel
-import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasScreen
 import com.example.reciclapp.screens.noticias.NoticiasViewModel
@@ -35,7 +29,6 @@ import com.example.reciclapp.screens.profile.ChangePasswordScreen
 import com.example.reciclapp.screens.profile.EditProfileScreen
 import com.example.reciclapp.screens.profile.ProfileScreen
 import com.example.reciclapp.viewmodel.AuthViewModel
-//import com.example.reciclapp.viewmodel.NoticiasViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 
@@ -155,11 +148,11 @@ fun AuthNavHost(
         }
 
         // Resultados de Scaneo pt.1
-        composable("analysis") {
+        /*composable("analysis") {
             MainLayout(navController) {
                 ScanResultScreen(navController)
             }
-        }
+        }*/
 
         // Resultados de Scaneo pt.2
         composable(
