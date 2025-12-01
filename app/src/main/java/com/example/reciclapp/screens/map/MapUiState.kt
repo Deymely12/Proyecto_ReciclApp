@@ -10,5 +10,6 @@ data class MapUiState(
     val distanceToNearest: Float? = null,
     val topNearest: List<Pair<Marker, Float>> = emptyList(),
     val isLoadingLocation: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val canSeeRequests: Boolean = false //para los roles del usuario
 )

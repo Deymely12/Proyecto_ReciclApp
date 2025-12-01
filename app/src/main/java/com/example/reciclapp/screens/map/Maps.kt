@@ -123,9 +123,14 @@ fun MapScreen(
             Button(onClick = { navController.navigate("register") }) {
                 Text("Registrar Ubicación")
             }
-            Button(onClick = { navController.navigate("request") }) {
-                Text("Solicitudes")
+
+            // Solo mostramos el botón si el usuario tiene rol == true
+            if (uiState.canSeeRequests) {
+                Button(onClick = { navController.navigate("request") }) {
+                    Text("Solicitudes")
+                }
             }
         }
+
     }
 }

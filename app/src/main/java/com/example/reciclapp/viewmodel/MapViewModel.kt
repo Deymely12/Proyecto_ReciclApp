@@ -12,12 +12,14 @@ import com.example.reciclapp.model.Marker
 import com.example.reciclapp.screens.map.MapUiState
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MapViewModel(
@@ -25,11 +27,15 @@ class MapViewModel(
     private val locationDataSource: LocationDataSource
 ) : ViewModel() {
 
+    private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
     private val _uiState = MutableStateFlow(MapUiState())
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
 
     init {
         observeMarkers()
+        listenUserRole()
     }
 
     private fun observeMarkers() {
@@ -103,6 +109,23 @@ class MapViewModel(
             }
             .sortedBy { it.second }
             .take(n)
+    }
+
+    private fun listenUserRole() {
+        val uid = auth.currentUser?.uid ?: return  // si no hay usuario logueado, se queda en false
+
+        firestore.collection("users")
+            .document(uid)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    // si hay error, no mostramos el botón
+                    _uiState.update { it.copy(canSeeRequests = false) }
+                    return@addSnapshotListener
+                }
+
+                val rol = snapshot?.getBoolean("rol") ?: false
+                _uiState.update { it.copy(canSeeRequests = rol) }
+            }
     }
 
     companion object {
