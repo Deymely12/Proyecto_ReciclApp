@@ -28,6 +28,7 @@ import com.example.reciclapp.screens.noticias.NoticiasViewModel
 import com.example.reciclapp.screens.profile.ChangePasswordScreen
 import com.example.reciclapp.screens.profile.EditProfileScreen
 import com.example.reciclapp.screens.profile.ProfileScreen
+import com.example.reciclapp.screens.ranking.RankingScreen
 import com.example.reciclapp.viewmodel.AuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
@@ -144,6 +145,13 @@ fun AuthNavHost(
         composable("camera") {
             MainLayout(navController) {
                 WasteScreen(navController)
+            }
+        }
+
+        // Ranking
+        composable("ranking") {
+            MainLayout(navController) {
+                RankingScreen(navController)
             }
         }
 

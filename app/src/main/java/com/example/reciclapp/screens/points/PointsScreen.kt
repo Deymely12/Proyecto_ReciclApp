@@ -3,6 +3,7 @@ package com.example.reciclapp.screens.points
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -64,10 +65,27 @@ fun PointsPromotionsScreen(
         ) {
 
             // ---- PUNTOS TOTALES ----
-            Text(
-                text = "Puntos totales: ${uiState.totalPoints}",
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp), // margen opcional
+                //horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    text = "Puntos totales: ${uiState.totalPoints}",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(onClick = {
+                    navController.navigate("ranking")
+                }) {
+                    Text(text = "Ver Ranking")
+                }
+            }
+
 
             Spacer(modifier = Modifier.height(12.dp))
 
