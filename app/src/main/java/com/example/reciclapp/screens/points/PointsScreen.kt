@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.List
@@ -27,6 +29,7 @@ import com.example.reciclapp.model.PromotionsViewMode
 import com.example.reciclapp.model.getViewModeFlow
 import com.example.reciclapp.model.saveViewMode
 import com.example.reciclapp.R
+import com.example.reciclapp.screens.ranking.RankingScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,6 +46,8 @@ fun PointsPromotionsScreen(
     val viewModeFlow = remember { getViewModeFlow(context) }
     val viewMode by viewModeFlow.collectAsState(initial = PromotionsViewMode.LIST)
 
+    //val scrollState = rememberScrollState() // de diego
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -55,6 +60,7 @@ fun PointsPromotionsScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
                 .fillMaxSize()
+                //.verticalScroll(scrollState)//de diego
         ) {
 
             // ---- PUNTOS TOTALES ----
@@ -66,6 +72,10 @@ fun PointsPromotionsScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Divider()
+
+            //RankingScreen()
+
+            //Divider()
 
             Spacer(modifier = Modifier.height(12.dp))
 
