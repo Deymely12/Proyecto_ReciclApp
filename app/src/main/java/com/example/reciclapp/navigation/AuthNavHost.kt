@@ -25,6 +25,7 @@ import com.example.reciclapp.viewmodel.MapViewModel
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasScreen
 import com.example.reciclapp.screens.noticias.NoticiasViewModel
+import com.example.reciclapp.screens.points.PromotionDetailScreen
 import com.example.reciclapp.screens.profile.ChangePasswordScreen
 import com.example.reciclapp.screens.profile.EditProfileScreen
 import com.example.reciclapp.screens.profile.ProfileScreen
@@ -66,7 +67,7 @@ fun AuthNavHost(
             LoginScreenAuth(
                 authViewModel = authViewModel,
                 onLoginSuccess = {
-                    navController.navigate("dashboardMenu") {
+                    navController.navigate("noticias") {
                         popUpTo("login") { inclusive = true }
                     }
                 },
@@ -84,7 +85,7 @@ fun AuthNavHost(
             RegisterScreenAuth(
                 authViewModel = authViewModel,
                 onRegisterSuccess = {
-                    navController.navigate("dashboardMenu") {
+                    navController.navigate("noticias") {
                         popUpTo("register") { inclusive = true }
                     }
                 },
@@ -139,6 +140,20 @@ fun AuthNavHost(
             MainLayout(navController) {
                 PointsPromotionsScreen(navController)
             }
+        }
+
+        //Detalles de Promo
+        composable(
+            route = "promotion_detail/{promotionId}",
+            arguments = listOf(
+                navArgument("promotionId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val promoId = backStackEntry.arguments?.getString("promotionId") ?: ""
+            PromotionDetailScreen(
+                navController = navController,
+                promotionId = promoId
+            )
         }
 
         // CÁMARA

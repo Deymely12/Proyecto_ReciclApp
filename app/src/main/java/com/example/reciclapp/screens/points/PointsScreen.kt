@@ -2,6 +2,7 @@ package com.example.reciclapp.screens.points
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
@@ -167,8 +168,19 @@ fun PointsPromotionsScreen(
 
                 else -> {
                     when (viewMode) {
-                        PromotionsViewMode.LIST -> PromotionsList(uiState.promotions)
-                        PromotionsViewMode.GRID -> PromotionsGrid(uiState.promotions)
+                        PromotionsViewMode.LIST -> PromotionsList(
+                            promotions = uiState.promotions,
+                            onPromotionClick = { promo ->
+                                navController.navigate("promotion_detail/${promo.id}")
+                            }
+                        )
+
+                        PromotionsViewMode.GRID -> PromotionsGrid(
+                            promotions = uiState.promotions,
+                            onPromotionClick = { promo ->
+                                navController.navigate("promotion_detail/${promo.id}")
+                            }
+                        )
                     }
                 }
             }
@@ -176,18 +188,27 @@ fun PointsPromotionsScreen(
     }
 }
 @Composable
-fun PromotionsList(promotions: List<Promotion>) {
+fun PromotionsList(
+    promotions: List<Promotion>,
+    onPromotionClick: (Promotion) -> Unit
+) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(promotions) { promo ->
-            PromotionRow(promo)
+            PromotionRow(
+                promotion = promo,
+                onClick = { onPromotionClick(promo) }
+            )
         }
     }
 }
 
 @Composable
-fun PromotionsGrid(promotions: List<Promotion>) {
+fun PromotionsGrid(
+    promotions: List<Promotion>,
+    onPromotionClick: (Promotion) -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 160.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -195,16 +216,24 @@ fun PromotionsGrid(promotions: List<Promotion>) {
         modifier = Modifier.fillMaxSize()
     ) {
         items(promotions) { promo ->
-            PromotionCard(promo)
+            PromotionCard(
+                promotion = promo,
+                onClick = { onPromotionClick(promo) }
+            )
         }
     }
 }
 
 // Item tipo "lista"
 @Composable
-fun PromotionRow(promotion: Promotion) {
+fun PromotionRow(
+    promotion: Promotion,
+    onClick: () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -243,14 +272,18 @@ fun PromotionRow(promotion: Promotion) {
 
 // Item tipo "cuadro / card"
 @Composable
-fun PromotionCard(promotion: Promotion) {
+fun PromotionCard(
+    promotion: Promotion,
+    onClick: () -> Unit
+) {
     val logoRes = logoForChain(promotion.cadena)
 
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
+    )  {
         Column(
             modifier = Modifier
                 .padding(12.dp)
