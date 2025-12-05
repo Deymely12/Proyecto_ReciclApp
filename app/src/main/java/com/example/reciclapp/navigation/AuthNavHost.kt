@@ -17,10 +17,14 @@ import com.example.reciclapp.screens.auth.LoginScreenAuth
 import com.example.reciclapp.screens.auth.RegisterScreenAuth
 import com.example.reciclapp.screens.points.PointsPromotionsScreen
 import com.example.reciclapp.screens.camera.ResultScreen
+import com.example.reciclapp.screens.dashboard.data.repository.UsuarioRepository
+import com.example.reciclapp.screens.dashboard.ui.screens.AdminPanelScreen
 import com.example.reciclapp.screens.dashboard.ui.screens.DashboardImpactoScreen
 import com.example.reciclapp.screens.dashboard.ui.screens.DashboardMenuScreen
 import com.example.reciclapp.screens.dashboard.ui.screens.DashboardPuntosScreen
 import com.example.reciclapp.screens.dashboard.ui.screens.DashboardResiduosScreen
+import com.example.reciclapp.screens.dashboard.ui.screens.GestionUsuariosScreen
+import com.example.reciclapp.screens.dashboard.viewmodeldashboard.AdminUsersViewModel
 import com.example.reciclapp.viewmodel.MapViewModel
 import com.example.reciclapp.screens.noticias.NoticiasFavoritasScreen
 import com.example.reciclapp.screens.noticias.NoticiasScreen
@@ -34,6 +38,13 @@ import com.example.reciclapp.screens.ranking.RankingScreen
 import com.example.reciclapp.viewmodel.AuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import android.content.Context
+import com.example.reciclapp.screens.dashboard.ui.screens.AdminDashboardScreen
+import com.example.reciclapp.screens.dashboard.viewmodeldashboard.DashboardMenuViewModel
+
 
 @Composable
 fun AuthNavHost( //es el “centro de rutas”
@@ -101,12 +112,22 @@ fun AuthNavHost( //es el “centro de rutas”
 
         // Menu
         composable("dashboardMenu") {
-            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            val context = LocalContext.current
+            val usuarioRepository = UsuarioRepository(context)
+
+            val dashboardViewModel: DashboardMenuViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return DashboardMenuViewModel(usuarioRepository) as T
+                    }
+                }
+            )
+
             MainLayout(navController) {
-                DashboardMenuScreen(navController, uid)
+                DashboardMenuScreen(navController, dashboardViewModel)
             }
         }
-
 // Residuos
         composable("residuos") {
             val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
@@ -236,5 +257,40 @@ fun AuthNavHost( //es el “centro de rutas”
                 ChangePasswordScreen(authViewModel = authViewModel, onBack = { navController.popBackStack() })// Regresa a la pantalla anterior
             }
         }
+
+        // MENU DEL ADMINISTRADOR
+        composable("adminPanel") {
+            MainLayout(navController) {
+                AdminPanelScreen(navController)
+            }
+        }
+
+// GESTIÓN DE USUARIOS (CAMBIO DE ROLES)
+        composable("gestionUsuarios") {
+            val context = LocalContext.current
+
+            val viewModel: AdminUsersViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return AdminUsersViewModel(context) as T
+                    }
+                }
+            )
+
+            MainLayout(navController) {
+                GestionUsuariosScreen(navController, viewModel)
+            }
+        }
+
+        // ADMIN DASHBOARD
+        composable("adminDashboard") {
+            MainLayout(navController) {
+                AdminDashboardScreen(navController)
+            }
+        }
+
+
+
     }
 }
