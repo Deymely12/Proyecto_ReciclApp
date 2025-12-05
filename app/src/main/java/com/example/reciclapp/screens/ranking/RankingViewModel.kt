@@ -2,6 +2,7 @@ package com.example.reciclapp.screens.ranking
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.reciclapp.model.RankedUser
 import com.example.reciclapp.model.User
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,10 +16,10 @@ class RankingViewModel(
     private val repository: RankingRepository =
         RankingRepository(FirebaseFirestore.getInstance())
 ): ViewModel(){
-    private var fullRankingList: List<User> = emptyList()
+    private var fullRankingList: List<RankedUser> = emptyList()
 
-    private val _ranking = MutableStateFlow<List<User>>(emptyList())
-    val ranking: StateFlow<List<User>> = _ranking
+    private val _ranking = MutableStateFlow<List<RankedUser>>(emptyList())
+    val ranking: StateFlow<List<RankedUser>> = _ranking
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
@@ -30,7 +31,12 @@ class RankingViewModel(
     private fun observeRanking() {
         viewModelScope.launch {
             repository.getRankingFlow().collect { list ->
-                fullRankingList = list
+                fullRankingList = list.mapIndexed { index, user ->
+                    RankedUser(
+                        user = user,
+                        position = index + 1
+                    )
+                }
                 filterRanking(_searchQuery.value)
             }
         }
@@ -46,7 +52,7 @@ class RankingViewModel(
             fullRankingList
         } else {
             fullRankingList.filter {
-                it.firstname.contains(query, ignoreCase = true)
+                it.user.firstname.contains(query, ignoreCase = true)
             }
         }
     }

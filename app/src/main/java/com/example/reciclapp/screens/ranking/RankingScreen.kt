@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.reciclapp.model.User
+import androidx.compose.foundation.lazy.items
 
 @Composable
 fun RankingScreen(navController: NavController,
@@ -39,8 +40,9 @@ fun RankingScreen(navController: NavController,
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // BOTÓN ATRÁS
-        TextButton (onClick = { navController.popBackStack() }) {
+        TextButton (
+            onClick = { navController.popBackStack() }
+        ) {
             Text("← Atrás")
         }
 
@@ -61,8 +63,11 @@ fun RankingScreen(navController: NavController,
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn {
-            itemsIndexed(ranking) { index, user ->
-                RankingRow(position = index + 1, user = user)
+            items(ranking) { rankedUser ->
+                RankingRow(
+                    position = rankedUser.position,
+                    user = rankedUser.user
+                )
                 Divider()
             }
         }

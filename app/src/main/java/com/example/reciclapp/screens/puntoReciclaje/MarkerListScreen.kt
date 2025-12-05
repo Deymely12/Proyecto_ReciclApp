@@ -60,8 +60,9 @@ fun MarkerListScreen(
             .padding(16.dp)
     ) {
 
-        // BOTÓN ATRÁS
-        TextButton (onClick = { navController.popBackStack() }) {
+        TextButton (
+            onClick = { navController.popBackStack() }
+        ) {
             Text("← Atrás")
         }
 
@@ -84,7 +85,6 @@ fun MarkerListScreen(
                 ) {
                     Column (modifier = Modifier.padding(12.dp)) {
 
-                        // ---------- Título ----------
                         Text(
                             marker.name,
                             style = MaterialTheme.typography.titleMedium
@@ -107,7 +107,6 @@ fun MarkerListScreen(
 
                         )
 
-                        // ---------- Expandible ----------
                         AnimatedVisibility(visible = isExpanded) {
 
                             Column {
