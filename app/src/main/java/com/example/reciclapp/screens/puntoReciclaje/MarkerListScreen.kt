@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,75 +46,99 @@ import kotlin.text.isNotBlank
 import kotlin.toString
 
 @Composable
-fun MarkerListScreen(navController: NavController,viewModel: MarkerViewModel = viewModel()) {
-
-    // BOTÓN ATRÁS
-    TextButton (onClick = { navController.popBackStack() }) {
-        Text("← Atrás")
-    }
+fun MarkerListScreen(
+    navController: NavController,
+    idUsuario:String,
+    viewModel: MarkerViewModel = viewModel()) {
 
     val markers by viewModel.markerList.collectAsState()
     val commentsMap by viewModel.comments.collectAsState()
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        // BOTÓN ATRÁS
+        TextButton (onClick = { navController.popBackStack() }) {
+            Text("← Atrás")
+        }
 
-        items(markers) { uiState ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
 
-            val marker = uiState.marker
-            val isExpanded = uiState.expanded
-            val comments = commentsMap[marker.id] ?: emptyList()
+            items(markers) { uiState ->
 
-            Card (
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
-                    .clickable { viewModel.toggleExpand(marker.id) },
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Column (modifier = Modifier.padding(12.dp)) {
+                val marker = uiState.marker
+                val isExpanded = uiState.expanded
+                val comments = commentsMap[marker.id] ?: emptyList()
 
-                    // ---------- Título ----------
-                    Text(marker.name, style = MaterialTheme.typography.titleMedium)
-                    Text("Ubicacdo en ${marker.direccion}", style = MaterialTheme.typography.bodySmall)
-                    Image(
-                        modifier=Modifier
-                            .fillMaxWidth()
-                            .height(200.dp)
-                            .padding(top = 8.dp),
+                Card (
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .clickable { viewModel.toggleExpand(marker.id) },
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Column (modifier = Modifier.padding(12.dp)) {
 
-                        painter = rememberAsyncImagePainter(marker.photo),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop
+                        // ---------- Título ----------
+                        Text(
+                            marker.name,
+                            style = MaterialTheme.typography.titleMedium
+                        )
 
-                    )
+                        Text(
+                            "Ubicacdo en ${marker.direccion}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
 
-                    // ---------- Expandible ----------
-                    AnimatedVisibility(visible = isExpanded) {
+                        Image(
+                            modifier=Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .padding(top = 8.dp),
 
-                        Column {
+                            painter = rememberAsyncImagePainter(marker.photo),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop
 
-                            Spacer(Modifier.height(8.dp))
-                            Text(marker.description.toString(), style = MaterialTheme.typography.bodyMedium)
-                            //Text(marker.latitude.toString())
-                            //Text(marker.longitude.toString())
-                            //Text(marker.id.toString())
+                        )
 
-                            Spacer(Modifier.height(12.dp))
-                            Text("Comentarios", style = MaterialTheme.typography.titleSmall)
+                        // ---------- Expandible ----------
+                        AnimatedVisibility(visible = isExpanded) {
 
-                            comments.forEach { comment ->
-                                CommentItem(comment)
-                            }
+                            Column {
 
-                            CommentInput(onSend = { text ->
-                                viewModel.addComment(
-                                    marker.id,
-//                                    userId = "TEMP_USER",
-                                    userId="dWxwJ57JwnUR068QOXXiFA1PIwj2",
-                                    texto = text
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    marker.description.toString(),
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
-                            })
+
+                                Spacer(Modifier.height(12.dp))
+                                Divider()
+                                Spacer(Modifier.height(12.dp))
+                                Text(
+                                    "Comentarios",
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+
+                                comments.forEach { comment ->
+                                    CommentItem(comment)
+                                }
+
+                                CommentInput(onSend = { text ->
+                                    viewModel.addComment(
+                                        marker.id,
+                                        //userId="dWxwJ57JwnUR068QOXXiFA1PIwj2",
+                                        userId=idUsuario,
+                                        texto = text
+                                    )
+                                })
+                            }
                         }
                     }
                 }
@@ -136,7 +161,10 @@ fun CommentItem(comment: Coment) {
                 "${comment.userName} ${comment.userLastName} comentó:",
                 style = MaterialTheme.typography.labelMedium)
 
-            Text(comment.texto, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                comment.texto,
+                style = MaterialTheme.typography.bodyMedium
+            )
             //style = MaterialTheme.typography.bodyMedium
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -178,7 +206,10 @@ fun CommentInput(onSend: (String) -> Unit) {
                 }
             }
         ) {
-            Icon(Icons.Default.Send, contentDescription = "Enviar")
+            Icon(
+                Icons.Default.Send,
+                contentDescription = "Enviar"
+            )
         }
     }
 }

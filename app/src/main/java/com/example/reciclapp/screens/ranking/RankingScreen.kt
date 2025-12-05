@@ -48,9 +48,14 @@ fun RankingScreen(navController: NavController,
             value = searchQuery,
             onValueChange = viewModel::onSearchQueryChanged,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Buscar usuario") },
+            label = {
+                Text("Buscar usuario")
+                    },
             singleLine = true,
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
+            leadingIcon = {
+                Icon(Icons.Default.Search,
+                    contentDescription = null)
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))

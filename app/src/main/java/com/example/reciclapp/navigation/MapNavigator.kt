@@ -15,6 +15,7 @@ import com.example.reciclapp.screens.puntoReciclaje.MarkerListScreen
 import com.example.reciclapp.viewmodel.AuthViewModel
 import com.example.reciclapp.viewmodel.MapViewModel
 import com.example.reciclapp.viewmodel.MapViewModel.Companion.provideFactory
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun MapNavigator(authViewModel: AuthViewModel = viewModel()) {
@@ -42,7 +43,8 @@ fun MapNavigator(authViewModel: AuthViewModel = viewModel()) {
         }
         // puntosReciclaje
         composable("puntosreciclaje") {
-            MarkerListScreen(navController = navController)
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            MarkerListScreen(navController = navController,uid)
         }
     }
 }
