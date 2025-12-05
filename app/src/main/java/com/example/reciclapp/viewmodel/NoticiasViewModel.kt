@@ -10,22 +10,18 @@ import com.example.reciclapp.model.Noticia
 import kotlinx.coroutines.launch
 
 class NoticiasViewModel(
-    private val repository: GeminiRepository = GeminiRepository() // inyección simple
+    private val repository: GeminiRepository = GeminiRepository()
 ) : ViewModel() {
-
-    //var noticias by mutableStateOf<List<Noticia>>(emptyList())
-    //    private set
 
     private val _noticias = mutableStateOf<List<Noticia>>(emptyList())
     val noticias: State<List<Noticia>> = _noticias
 
-    //var loading by mutableStateOf(false)
-    //    private set
+
 
     private val _loading = mutableStateOf(false)
     val loading: State<Boolean> = _loading
 
-    // Cargar noticias una sola vez
+
     init {
         cargarNoticias()
     }

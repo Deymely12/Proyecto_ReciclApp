@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">ReciclApp</string>
     <string name="default_web_client_id">768431524783-bvesd915lqsknpn4sn0e4ug1rq1q1ibm.apps.googleusercontent.com</string>
+    <string name="nomFav">Mis Noticias Favoritas</string>
+    <string name="notAmb">Noticias Ambientales</string>
+    <string name="preguntaRegistro">¿No tienes una cuenta? Regístrate</string>
+    <string name="preguntaIniciar">¿Ya tienes una cuenta? Iniciar sesión</string>
+
 </resources>

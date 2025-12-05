@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.reciclapp.R
@@ -24,17 +25,20 @@ import com.example.reciclapp.viewmodel.AuthViewModel
 
 @Composable
 fun LoginScreenAuth(
-    authViewModel: AuthViewModel = viewModel(),
-    onLoginSuccess: () -> Unit,
-    onRegisterClick: () -> Unit,
-    onGoogleLoginClick: () -> Unit
+    authViewModel: AuthViewModel = viewModel(), // ViewModel encargado de la autenticación (Firebase)
+    onLoginSuccess: () -> Unit,                 // Acción a ejecutar si el login es exitoso
+    onRegisterClick: () -> Unit,                // Acción al presionar "Registrarse"
+    onGoogleLoginClick: () -> Unit              // Acción al presionar "Entrar con Google"
 ) {
-    val context = LocalContext.current
+    val context = LocalContext.current          // Obtener el contexto actual de la aplicación
 
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
 
+    // Variables de estado que almacenan los datos ingresados por el usuario
+    var email by remember { mutableStateOf("") }                // Guarda el texto del correo
+    var password by remember { mutableStateOf("") }             // Guarda la contraseña
+    var passwordVisible by remember { mutableStateOf(false) }   // Controla si la contraseña se muestra o se oculta
+
+    // Observa el estado actual de autenticación desde el ViewModel
     val authState by authViewModel.authState.collectAsState()
 
     // ======================
@@ -47,6 +51,7 @@ fun LoginScreenAuth(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        //Logo de la aplicación
         Image(
             painter = painterResource(id = R.drawable.reciclapplogo),
             contentDescription = "Logo ReciclApp",
@@ -66,19 +71,20 @@ fun LoginScreenAuth(
 
         PasswordTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = { password = it }, // Actualiza la variable password
             label = "Contraseña",
             passwordVisible = passwordVisible,
-            onToggleVisibility = { passwordVisible = !passwordVisible },
-            visibleIconRes = R.drawable.ic_visibility,
-            hiddenIconRes = R.drawable.ic_visibility_off,
+            onToggleVisibility = { passwordVisible = !passwordVisible }, // Cambia visibilidad
+            visibleIconRes = R.drawable.ic_visibility,                   // Ícono de mostrar contraseña
+            hiddenIconRes = R.drawable.ic_visibility_off,                // Ícono de ocultar contraseña
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Botón para iniciar sesión con correo y contraseña
         Button(
-            onClick = { authViewModel.login(email, password) },
+            onClick = { authViewModel.login(email, password) }, // Llama a la función login del ViewModel
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Iniciar sesión")
@@ -104,16 +110,18 @@ fun LoginScreenAuth(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Texto que redirige a la pantalla de registro
         Text(
-            text = "¿No tienes una cuenta? Regístrate",
-            modifier = Modifier.clickable { onRegisterClick() },
+            text = stringResource(R.string.preguntaRegistro),
+            modifier = Modifier.clickable { onRegisterClick() }, // Navega al registro
             color = Color.Blue
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Muestra el estado actual de autenticación
         when (authState) {
-            is AuthState.Loading -> Text("Cargando...")
+            is AuthState.Loading -> Text("Cargando...") // Mientras se procesa el login
             is AuthState.Error -> Text((authState as AuthState.Error).message, color = Color.Red)
             else -> {}
         }
@@ -121,6 +129,6 @@ fun LoginScreenAuth(
 
     // Detecta si el login fue exitoso
     LaunchedEffect(authState) {
-        if (authState is AuthState.Success) onLoginSuccess()
+        if (authState is AuthState.Success) onLoginSuccess() // Si el estado es éxito, redirige al dashboard
     }
 }

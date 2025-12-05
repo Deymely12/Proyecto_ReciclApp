@@ -36,9 +36,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun AuthNavHost(
-    navController: NavHostController = rememberNavController(),
-    authViewModel: AuthViewModel = viewModel()
+fun AuthNavHost( //es el “centro de rutas”
+    navController: NavHostController = rememberNavController(), //Poder movernos entre pantallas
+    authViewModel: AuthViewModel = viewModel() //ViewModel principal para autenticación
 ) {
     val noticiasViewModel: NoticiasViewModel = viewModel()
     val context = LocalContext.current
@@ -47,20 +47,20 @@ fun AuthNavHost(
         factory = MapViewModel.provideFactory(context)
     )
 
-
-    // Launcher para Google Sign-In (usaremos para login y registro)
+    // Launcher para Google Sign-In (usados para login y registro)
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            // Aquí necesitamos saber si es login o registro
-            // Para simplificar, se guardará temporalmente un flag en el ViewModel
+            // Verifica si el flujo actual es de registro o de login
             val isRegister = authViewModel.isRegisterFlow
+            // Maneja el resultado del inicio de sesión con Google
             authViewModel.handleGoogleSignInResult(task, isRegister)
         }
     }
 
+    // Contenedor principal de navegación
     NavHost(navController = navController, startDestination = "login") {
 
         // LOGIN
@@ -72,7 +72,7 @@ fun AuthNavHost(
                         popUpTo("login") { inclusive = true }
                     }
                 },
-                onRegisterClick = { navController.navigate("register") },
+                onRegisterClick = { navController.navigate("register") },// Navega a la pantalla de registro
                 onGoogleLoginClick = {
                     // Indicamos que es login
                     authViewModel.initGoogleSignIn(activity, isRegister = false)
@@ -211,9 +211,10 @@ fun AuthNavHost(
             MainLayout(navController) {
                 ProfileScreen(
                     authViewModel = authViewModel,
-                    onEditProfileClick = { navController.navigate("editProfile") },
-                    onChangePasswordClick = { navController.navigate("changePassword") },
+                    onEditProfileClick = { navController.navigate("editProfile") },// Navega a editar perfil
+                    onChangePasswordClick = { navController.navigate("changePassword") },// Navega a cambiar contraseña
                     onLogoutClick = {
+                        // Cierra sesión y vuelve a la pantalla de login, eliminando el historial de navegacion
                         authViewModel.logout()
                         navController.navigate("login") {
                             popUpTo("dashboard") { inclusive = true }
@@ -226,13 +227,13 @@ fun AuthNavHost(
 
         composable("editProfile") {
             MainLayout(navController) {
-                EditProfileScreen(authViewModel = authViewModel, onBack = { navController.popBackStack() })
+                EditProfileScreen(authViewModel = authViewModel, onBack = { navController.popBackStack() })// Regresa a la pantalla anterior
             }
         }
 
         composable("changePassword") {
             MainLayout(navController) {
-                ChangePasswordScreen(authViewModel = authViewModel, onBack = { navController.popBackStack() })
+                ChangePasswordScreen(authViewModel = authViewModel, onBack = { navController.popBackStack() })// Regresa a la pantalla anterior
             }
         }
     }

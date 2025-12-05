@@ -102,7 +102,7 @@ fun NoticiasScreen(viewModel: NoticiasViewModel, authViewModel: AuthViewModel) {
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Noticias Ambientales",
+                text = stringResource(R.string.notAmb),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )

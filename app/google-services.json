@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "768431524783-9h2h0f4vgtbk3sugdseu622js4dsqamo.apps.googleusercontent.com",
+          "client_id": "768431524783-i6tabur9reeb3p2fe1o09hd18qfu0caf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.reciclapp",
-            "certificate_hash": "3f37e3a9f4f7953dd652c8bfa20a728b31b8adca"
+            "certificate_hash": "f2833b732e8148c051a827d9ab52dbc7e0f8760a"
           }
         },
         {

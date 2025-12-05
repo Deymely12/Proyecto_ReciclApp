@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.reciclapp.model.Noticia
 import androidx.compose.foundation.lazy.items
+import com.example.reciclapp.R
 import com.example.reciclapp.viewmodel.AuthViewModel
 
 
@@ -83,7 +84,7 @@ fun NoticiasFavoritasScreen(authViewModel: AuthViewModel) {
             .padding(16.dp)
     ) {
         Text(
-            text = "Mis Noticias Favoritas",
+            text = stringResource(R.string.nomFav),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             modifier=Modifier

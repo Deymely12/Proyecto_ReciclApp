@@ -25,13 +25,18 @@ fun EditProfileScreen(
     authViewModel: AuthViewModel,
     onBack: () -> Unit
 ) {
+    //observa el estado actual de autenticación
     val authState by authViewModel.authState.collectAsState()
+
+    //verificar si el estado de autenticación es de tipo Success
     val user = (authState as? com.example.reciclapp.viewmodel.AuthState.Success)?.user
 
+    //almacenan el nombre y apellido del usuario
     var firstname by remember { mutableStateOf(user?.firstname ?: "") }
     var lastname by remember { mutableStateOf(user?.lastname ?: "") }
     var photoUri by remember { mutableStateOf<Uri?>(null) }
 
+    //prepara un launcher para selector de archivo
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
