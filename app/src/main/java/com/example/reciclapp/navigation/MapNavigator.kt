@@ -11,11 +11,13 @@ import com.example.reciclapp.screens.camera.ResultScreen
 import com.example.reciclapp.screens.map.MapScreen
 import com.example.reciclapp.screens.map.RegisterScreen
 import com.example.reciclapp.screens.map.RequestListScreen
+import com.example.reciclapp.screens.puntoReciclaje.MarkerListScreen
+import com.example.reciclapp.viewmodel.AuthViewModel
 import com.example.reciclapp.viewmodel.MapViewModel
 import com.example.reciclapp.viewmodel.MapViewModel.Companion.provideFactory
 
 @Composable
-fun MapNavigator() {
+fun MapNavigator(authViewModel: AuthViewModel = viewModel()) {
     val navController: NavHostController = rememberNavController()
     val context = LocalContext.current
 
@@ -37,6 +39,10 @@ fun MapNavigator() {
         }
         composable("request") {
             RequestListScreen(navController = navController) // igual que antes
+        }
+        // puntosReciclaje
+        composable("puntosreciclaje") {
+            MarkerListScreen(navController = navController)
         }
     }
 }

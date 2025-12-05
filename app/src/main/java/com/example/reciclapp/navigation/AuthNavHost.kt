@@ -29,6 +29,7 @@ import com.example.reciclapp.screens.points.PromotionDetailScreen
 import com.example.reciclapp.screens.profile.ChangePasswordScreen
 import com.example.reciclapp.screens.profile.EditProfileScreen
 import com.example.reciclapp.screens.profile.ProfileScreen
+import com.example.reciclapp.screens.puntoReciclaje.MarkerListScreen
 import com.example.reciclapp.screens.ranking.RankingScreen
 import com.example.reciclapp.viewmodel.AuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -169,6 +170,8 @@ fun AuthNavHost(
                 RankingScreen(navController)
             }
         }
+
+
 
         // Resultados de Scaneo pt.1
         /*composable("analysis") {

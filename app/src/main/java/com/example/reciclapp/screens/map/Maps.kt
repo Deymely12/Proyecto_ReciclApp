@@ -117,17 +117,22 @@ fun MapScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            //horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(onClick = { navController.navigate("register") }) {
-                Text("Registrar Ubicación")
+                Text("Registrar")
             }
+
+            Button(onClick = { navController.navigate("puntosreciclaje") }) {
+                Text("Ecopunto")
+            }
+
 
             // Solo mostramos el botón si el usuario tiene rol == true
             if (uiState.canSeeRequests) {
                 Button(onClick = { navController.navigate("request") }) {
-                    Text("Solicitudes")
+                    Text("Solicituds")
                 }
             }
         }
