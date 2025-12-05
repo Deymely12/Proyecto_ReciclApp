@@ -1,16 +1,17 @@
-#Proyecto de Fin de Curso Desarrollo de Sistemas Móviles-2025-2 - UNMSM
+# Proyecto de Fin de Curso Desarrollo de Sistemas Móviles-2025-2 - UNMSM
 ---
-#Docente
+
+## Docente
 - Mamani Rodriguez, Zoraida Emperatriz
 
-#Integrantes
+## Integrantes
 1. Guzman Morales, Deysi Emely
 2. Lopez Sanchez, Farid Sebastián
 3. Ortega Sayago, Diego
 
 ---
 
-#Detalles de la App
+## Detalles de la App
 
 ![Logo del proyecto](./app/src/main/res/drawable/reciclapplogo.png)
 
@@ -19,7 +20,7 @@ Para lograrlo, se integraron modelos de análisis de imagen que facilitan la det
 
 ---
 
-#Tecnologías Utilizadas
+## Tecnologías Utilizadas
 - **Modelos de análisis de imagen** para la detección automática de materiales reciclables y centros de reciclaje.  
 - **APIs de maps** para ubicar y registrar puntos de reciclaje cercanos.  
 - **Gemini** como motor de búsqueda para noticias sobre reciclaje.  
