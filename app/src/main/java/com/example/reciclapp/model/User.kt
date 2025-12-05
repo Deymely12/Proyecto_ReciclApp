@@ -5,5 +5,6 @@ data class User(
     val lastname: String = "",
     val email: String = "",
     val photoUrl: String? = null,
+    //Agregue esto
     val totalPoints: Int = 0
 )

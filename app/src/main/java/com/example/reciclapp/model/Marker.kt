@@ -6,5 +6,8 @@ data class Marker(
     val latitude: Double,
     val longitude: Double,
     val description: String? = null,
-    val isEnabled: Boolean = true
+    val isEnabled: Boolean = true,//state
+    //Agregue esto
+    val photo:String?=null,
+    val direccion:String?=null
 )
