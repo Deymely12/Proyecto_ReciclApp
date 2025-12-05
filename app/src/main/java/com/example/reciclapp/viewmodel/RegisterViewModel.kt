@@ -38,6 +38,10 @@ class RegisterViewModel(
         uiState = uiState.copy(coordinates = value)
     }
 
+    fun onDireccionChange(value: String) {
+        uiState = uiState.copy(direccion = value)
+    }
+
     fun onImageSelected(uri: Uri?) {
         uiState = uiState.copy(
             selectedImageUri = uri,
@@ -110,8 +114,9 @@ class RegisterViewModel(
         val name = uiState.name
         val description = uiState.description
         val coordinates = uiState.coordinates
+        val direccion = uiState.direccion
 
-        if (name.isBlank() || description.isBlank() || coordinates == null) {
+        if (name.isBlank() || description.isBlank() || coordinates == null || direccion.isBlank()) {
             onError("Por favor, completa todos los campos")
             return
         }
@@ -128,6 +133,7 @@ class RegisterViewModel(
             latitude = coordinates.latitude,
             longitude = coordinates.longitude,
             description = description,
+            direccion = direccion,
             isEnabled = isRecycleCenter
         )
 

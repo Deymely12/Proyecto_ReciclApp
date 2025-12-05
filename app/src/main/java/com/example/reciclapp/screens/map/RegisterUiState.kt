@@ -8,6 +8,7 @@ data class RegisterUiState(
     val name: String = "",
     val description: String = "",
     val coordinates: GeoPoint? = null,
+    val direccion: String = "",
 
     // Estado de envío a Firestore
     val isSubmitting: Boolean = false,

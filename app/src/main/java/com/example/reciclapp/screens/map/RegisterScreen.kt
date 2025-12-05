@@ -209,6 +209,13 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
+        OutlinedTextField(
+            value = uiState.direccion,
+            onValueChange = { viewModel.onDireccionChange(it) },
+            label = { Text("Dirección") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(

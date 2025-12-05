@@ -47,6 +47,7 @@ class FirebaseMarkerRepository(
         val data = hashMapOf(
             "name" to marker.name,
             "description" to marker.description,
+            "direccion" to marker.direccion,
             "coordinates" to GeoPoint(marker.latitude, marker.longitude),
             "state" to marker.isEnabled
         )
